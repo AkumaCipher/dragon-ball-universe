@@ -1,0 +1,29 @@
+:root {
+  --dragon-ball-universe-c-dark: #191813;
+  --dragon-ball-universe-c-faint: #c9c7b8;
+  --dragon-ball-universe-c-beige: #b5b3a4;
+  --dragon-ball-universe-c-tan: #444444;
+  --dragon-ball-universe-c-white: #ffffff;
+  --dragon-ball-universe-c-black: #000000;
+  --dragon-ball-universe-c-groove: #eeede0;
+}
+
+.theme-dark {
+  --dragon-ball-universe-c-dark: #c9c7b8;
+  --dragon-ball-universe-c-faint: #191813;
+  --dragon-ball-universe-c-beige: #444444;
+  --dragon-ball-universe-c-tan: #b5b3a4;
+  --dragon-ball-universe-c-white: #000000;
+  --dragon-ball-universe-c-black: #ffffff;
+  --dragon-ball-universe-c-groove: #11121f;
+}
+
+$c-white: var(--dragon-ball-universe-c-white);
+$c-black: var(--dragon-ball-universe-c-black);
+
+$c-dark: var(--dragon-ball-universe-c-dark);
+$c-faint: var(--dragon-ball-universe-c-faint);
+$c-beige: var(--dragon-ball-universe-c-beige);
+$c-tan: var(--dragon-ball-universe-c-tan);
+
+$c-groove: var(--dragon-ball-universe-c-groove);

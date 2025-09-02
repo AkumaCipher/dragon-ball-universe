@@ -1,0 +1,90 @@
+{
+  "DRAGON_BALL_UNIVERSE": {
+    "Ability": {
+      "Ag": { "long": "Agility", "abbr": "AG" },
+      "Fo": { "long": "Force", "abbr": "FO" },
+      "Te": { "long": "Tenacity", "abbr": "TE" },
+      "Sc": { "long": "Scholarship", "abbr": "SC" },
+      "In": { "long": "Insight", "abbr": "IN" },
+      "Ma": { "long": "Magic", "abbr": "MA" },
+      "Pe": { "long": "Personality", "abbr": "PE" }
+    },
+    "SheetLabels": {
+      "Actor": "DragonBallUniverse Actor Sheet",
+      "Item": "DragonBallUniverse Item Sheet"
+    },
+    "Actor": {
+      "Tabs": {
+        "Biography": "Biography",
+        "Features": "Features",
+        "Gear": "Gear",
+        "Spells": "Spells",
+        "Effects": "Effects"
+      },
+      "base": {
+        "FIELDS": {
+          "biography": { "label": "Biography" },
+          "health": {
+            "value": { "label": "Life Points" },
+            "max": { "label": "Maximum Life Points" }
+          },
+          "ki": {
+            "value": { "label": "Ki Points" },
+            "max": { "label": "Maximum Ki Points" }
+          },
+          "capacityRate": {
+            "value": { "label": "Capacity Rate" },
+            "max": { "label": "Maximum Capacity Rate" }
+          },
+          "attributes.level.value": { "label": "Power Level" },
+          "baseTierOfPower": { "label": "Base Tier of Power" },
+          "currentTierOfPower": { "label": "Current Tier of Power" }
+        }
+      },
+      "Character": {
+        "FIELDS": {}
+      }
+    },
+    "Item": {
+      "Tabs": {
+        "Attributes": "Attributes",
+        "Description": "Description",
+        "Effects": "Effects"
+      },
+      "Gear": {
+        "FIELDS": {
+          "rollFormula": { "label": "Roll Formula" },
+          "numDice": { "label": "Number of Dice" },
+          "dieSize": { "label": "Die Size" },
+          "rollMod": { "label": "Roll Modifier" },
+          "quantity": { "label": "Quantity" },
+          "weight": { "label": "Weight" }
+        }
+      },
+      "Spell": {
+        "FIELDS": {
+          "level": { "label": "Spell Level" }
+        },
+        "SpellLVL": "Level {level} Spells",
+        "AddLVL": "Add LVL {level}"
+      }
+    },
+    "Effect": {
+      "Source": "Source",
+      "Toggle": "Toggle Effect",
+      "Temporary": "Temporary Effects",
+      "Passive": "Passive Effects",
+      "Inactive": "Inactive Effects"
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Character"
+    },
+    "Item": {
+      "gear": "Gear",
+      "feature": "Feature",
+      "spell": "Spell"
+    }
+  }
+}
