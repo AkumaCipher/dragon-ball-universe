@@ -49,6 +49,12 @@ export class DragonBallUniverseActor extends Actor {
 
     const abilities = systemData.abilities;
 
+    this._prepareResourcesData(systemData, abilities, level);
+
+    this._prepareAptitudesData(systemData, abilities);
+  }
+
+  _prepareResourcesData(systemData, abilities, level) {
     /* Calculate Life Modifier */
 
     // Each point of Tenacity adds 2 Life Points.
@@ -77,7 +83,9 @@ export class DragonBallUniverseActor extends Actor {
     const levelCapacityRateModifier = 4 * (level - 1);
 
     systemData.capacityRate.max = 20 + levelCapacityRateModifier;
+  }
 
+  _prepareAptitudesData(systemData, abilities) {
     /* Declare aptitudes */
 
     // Agility aptitudes
