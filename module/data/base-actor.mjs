@@ -1,3 +1,5 @@
+import { createExtraDiceByCategory } from "../helpers/utils.mjs";
+
 export default class DragonBallUniverseActorBase extends foundry.abstract
   .TypeDataModel {
   static LOCALIZATION_PREFIXES = ["DRAGON_BALL_UNIVERSE.Actor.base"];
@@ -81,11 +83,9 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     /* Calculate the Tier of Power */
 
-    systemData.baseTierOfPower = Math.floor(level / 5) + 1;
-
-    systemData.currentTierOfPower = systemData.baseTierOfPower; // + any temporary modifiers from effects, transformations, etc.
-
     const abilities = systemData.abilities;
+
+    this._prepareTierOfPowerExtraDice(systemData, level);
 
     this._prepareResourcesData(systemData, abilities, level);
 
@@ -93,6 +93,29 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     this._prepareCombatRollsData(systemData, abilities);
   }
+
+    _prepareTierOfPowerExtraDice(systemData, level) {
+
+    systemData.baseTierOfPower = Math.floor(level / 5) + 1;
+
+    systemData.currentTierOfPower = systemData.baseTierOfPower; // + any temporary modifiers from effects, transformations, etc.
+
+    const tierOfPowerExtraDiceCategory = systemData.currentTierOfPower - 1;
+
+    const strikeTierOfPowerExtraDiceCategory = tierOfPowerExtraDiceCategory;
+    const dodgeTierOfPowerExtraDiceCategory = tierOfPowerExtraDiceCategory;
+    const woundTierOfPowerExtraDiceCategory = tierOfPowerExtraDiceCategory;
+
+    systemData.tierOfPowerExtraDiceAmount = 1;
+
+    systemData.tierOfPowerExtraDice = {
+      strike: createExtraDiceByCategory(strikeTierOfPowerExtraDiceCategory, 1, systemData.tierOfPowerExtraDiceAmount),
+      dodge: createExtraDiceByCategory(dodgeTierOfPowerExtraDiceCategory, 1, systemData.tierOfPowerExtraDiceAmount),
+      wound: createExtraDiceByCategory(woundTierOfPowerExtraDiceCategory, 1, systemData.tierOfPowerExtraDiceAmount),
+    }
+
+  }
+
 
   _prepareResourcesData(systemData, abilities, level) {
     /* Calculate Life Modifier */
@@ -150,15 +173,37 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     systemData.surgency = abilities.fo.mod;
 
-    systemData.superStackAmount = Math.clamp(
+    const superStackAmount = Math.clamp(
       Math.floor((abilities.fo.value - abilities.ag.value) / 5),
       0,
       3
     );
 
+    const superStackDiceCategory = superStackAmount;
+
+    const superStackDice = createExtraDiceByCategory(
+      superStackDiceCategory,
+      systemData.currentTierOfPower
+    );
+
+    const superStackStrikePenalty = superStackAmount;
+
+    const superStackDodgePenalty = superStackAmount;
+
+    const superStackSoakBonus = superStackAmount;
+
+    systemData.superStack = {
+      amount: superStackAmount,
+      dice: superStackDice,
+      strikePenalty: superStackStrikePenalty,
+      dodgePenalty: superStackDodgePenalty,
+      soakBonus: superStackSoakBonus,
+    }
+
     // Tenacity aptitudes
 
-    systemData.soak = Math.max(abilities.te.mod, 1 * systemData.currentTierOfPower);
+    systemData.soak = Math.max(abilities.te.mod, 1 * systemData.currentTierOfPower)
+      + (systemData.superStack.soakBonus * systemData.currentTierOfPower);
 
     systemData.damageReduction = 0; // Placeholder for future DR rules
 
@@ -211,6 +256,15 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     const magicWound = abilities[systemData.magicWoundMod].mod;
     const maxWound = Math.max(physicalWound, energyWound, magicWound);
 
+    const strike = systemData.haste + systemData.awareness;
+    const dodge = systemData.defenseValue;
+
+    const strikeBonus = 0;
+    const dodgeBonus = 0;
+
+    const strikePenalty = -(systemData.superStack.strikePenalty * systemData.currentTierOfPower);
+    const dodgePenalty = -(systemData.superStack.dodgePenalty * systemData.currentTierOfPower);
+
     systemData.combatRolls = {
       wound: {
         physicalWound: physicalWound,
@@ -221,12 +275,12 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
         maxWound: maxWound,
       },
-      strike: systemData.haste + systemData.awareness,
-      dodge: systemData.defenseValue,
+      strike: strike + strikeBonus + strikePenalty,
+      dodge: dodge + dodgeBonus + dodgePenalty,
     }
 
   }
-
+  
   getRollData() {
     const data = {};
 
@@ -237,6 +291,16 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
         data[k] = foundry.utils.deepClone(v);
       }
     }
+
+    if (this.combatRolls) {
+      for (let [k, v] of Object.entries(this.combatRolls)) {
+        data[k] = foundry.utils.deepClone(v);
+      }
+    }
+
+    data["T"] = foundry.utils.deepClone(this.currentTierOfPower);
+
+    data["bT"] = foundry.utils.deepClone(this.baseTierOfPower);
 
     data.lvl = this.attributes.level.value;
 
