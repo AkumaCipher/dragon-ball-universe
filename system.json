@@ -32,7 +32,7 @@
       "paths": ["css", "lang", "templates"]
     }
   },
-  "url": "Replace this with a link to your public repository",
+  "url": "https://github.com/AkumaCipher/dragon-ball-universe/tree/main",
   "license": "LICENSE.txt",
   "readme": "README.md",
   "bugs": "Replace this with a link to file issues or tickets",
@@ -61,7 +61,7 @@
   "packs": [],
   "packFolders": [],
   "socket": false,
-  "manifest": "Replace this with a link to the /latest release system.json so people can receive updates after they've installed the system",
+  "manifest": "https://raw.githubusercontent.com/AkumaCipher/dragon-ball-universe/refs/heads/main/system.json",
   "download": "This must link to a .zip file of the current version",
   "background": "systems/dragon-ball-universe/assets/anvil-impact.png",
   "grid": {
