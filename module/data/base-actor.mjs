@@ -136,6 +136,12 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     systemData.initiative = Math.floor(abilities.ag.value / 2);
 
+    const normalSpeed = 2 + Math.floor(abilities.ag.mod / 2);
+
+    const boostedSpeed = 2 + abilities.ag.mod;
+
+    systemData.speed = { normalSpeed: normalSpeed, boostedSpeed: boostedSpeed };
+
     // Might aptitude
 
     systemData.might = Math.max(abilities.fo.mod, abilities.ma.mod);
@@ -152,7 +158,9 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     // Tenacity aptitudes
 
-    systemData.soak = abilities.te.mod;
+    systemData.soak = Math.max(abilities.te.mod, 1 * systemData.currentTierOfPower);
+
+    systemData.damageReduction = 0; // Placeholder for future DR rules
 
     // Scholarship aptitudes / rules
 
@@ -198,13 +206,20 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     systemData.magicWoundMod = "ma";
 
+    const physicalWound = abilities[systemData.physicalWoundMod].mod;
+    const energyWound = abilities[systemData.energyWoundMod].mod;
+    const magicWound = abilities[systemData.magicWoundMod].mod;
+    const maxWound = Math.max(physicalWound, energyWound, magicWound);
+
     systemData.combatRolls = {
       wound: {
-        physicalWound: abilities[systemData.physicalWoundMod].mod,
+        physicalWound: physicalWound,
 
-        energyWound: abilities[systemData.energyWoundMod].mod,
+        energyWound: energyWound,
 
-        magicWound: abilities[systemData.magicWoundMod].mod
+        magicWound: magicWound,
+
+        maxWound: maxWound,
       },
       strike: systemData.haste + systemData.awareness,
       dodge: systemData.defenseValue,

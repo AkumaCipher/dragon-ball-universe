@@ -1,13 +1,40 @@
 {
   "DRAGON_BALL_UNIVERSE": {
     "Ability": {
-      "Ag": { "long": "Agility", "abbr": "AG" },
-      "Fo": { "long": "Force", "abbr": "FO" },
-      "Te": { "long": "Tenacity", "abbr": "TE" },
-      "Sc": { "long": "Scholarship", "abbr": "SC" },
-      "In": { "long": "Insight", "abbr": "IN" },
-      "Ma": { "long": "Magic", "abbr": "MA" },
-      "Pe": { "long": "Personality", "abbr": "PE" }
+      "Ag": {
+        "long": "Agility",
+        "abbr": "AG"
+      },
+      "Fo": {
+        "long": "Force",
+        "abbr": "FO"
+      },
+      "Te": {
+        "long": "Tenacity",
+        "abbr": "TE"
+      },
+      "Sc": {
+        "long": "Scholarship",
+        "abbr": "SC"
+      },
+      "In": {
+        "long": "Insight",
+        "abbr": "IN"
+      },
+      "Ma": {
+        "long": "Magic",
+        "abbr": "MA"
+      },
+      "Pe": {
+        "long": "Personality",
+        "abbr": "PE"
+      }
+    },
+    "SavingThrow": {
+      "Corporeal": "Corporeal",
+      "Cognitive": "Cognitive",
+      "Morale": "Morale",
+      "Impulsive": "Impulsive"
     },
     "SheetLabels": {
       "Actor": "DragonBallUniverse Actor Sheet",
@@ -23,22 +50,103 @@
       },
       "base": {
         "FIELDS": {
-          "biography": { "label": "Biography" },
+          "biography": {
+            "label": "Biography"
+          },
           "health": {
-            "value": { "label": "Life Points" },
-            "max": { "label": "Maximum Life Points" }
+            "value": {
+              "label": "Life Points"
+            },
+            "max": {
+              "label": "Maximum Life Points"
+            }
           },
           "ki": {
-            "value": { "label": "Ki Points" },
-            "max": { "label": "Maximum Ki Points" }
+            "value": {
+              "label": "Ki Points"
+            },
+            "max": {
+              "label": "Maximum Ki Points"
+            }
           },
           "capacityRate": {
-            "value": { "label": "Capacity Rate" },
-            "max": { "label": "Maximum Capacity Rate" }
+            "value": {
+              "label": "Capacity Rate"
+            },
+            "max": {
+              "label": "Maximum Capacity Rate"
+            }
           },
-          "attributes.level.value": { "label": "Power Level" },
-          "baseTierOfPower": { "label": "Base Tier of Power" },
-          "currentTierOfPower": { "label": "Current Tier of Power" }
+          "attributes.level.value": {
+            "label": "Power Level"
+          },
+          "baseTierOfPower": {
+            "label": "Base Tier of Power"
+          },
+          "currentTierOfPower": {
+            "label": "Current Tier of Power"
+          },
+          "soak": {
+            "label": "Soak"
+          },
+          "damageReduction": {
+            "label": "Damage Reduction",
+            "abbr": "DR"
+          },
+          "initiative": {
+            "label": "Initiative"
+          },
+          "awareness": {
+            "label": "Awareness"
+          },
+          "defenseValue": {
+            "label": "Defense Value",
+            "abbr": "DV"
+          },
+          "haste": {
+            "label": "Haste"
+          },
+          "savingThrows":{
+            "label": "Saving Throws"
+          },
+          "speed": {
+            "label": "Speed",
+            "normalSpeed": {
+              "label": "Normal Speed",
+              "abbr": "N. Speed"
+            },
+            "boostedSpeed": {
+              "label": "Boosted Speed",
+              "abbr": "B. Speed"
+            }
+          },
+          "superStack": {
+            "label": "Super Stack"
+          },
+          "might": {
+            "label": "Might"
+          },
+          "combatRolls": {
+            "label": "Combat Rolls",
+            "strike": {
+              "label": "Strike"
+            },
+            "dodge": {
+              "label": "Dodge"
+            },
+            "wound": {
+              "label": "Wound",
+              "woundPhysical": {
+                "label": "Wound (Physical)"
+              },
+              "woundEnergy": {
+                "label": "Wound (Energy)"
+              },
+              "woundMagical": {
+                "label": "Wound (Magical)"
+              }
+            }
+          }
         }
       },
       "Character": {
@@ -53,17 +161,31 @@
       },
       "Gear": {
         "FIELDS": {
-          "rollFormula": { "label": "Roll Formula" },
-          "numDice": { "label": "Number of Dice" },
-          "dieSize": { "label": "Die Size" },
-          "rollMod": { "label": "Roll Modifier" },
-          "quantity": { "label": "Quantity" },
-          "weight": { "label": "Weight" }
+          "rollFormula": {
+            "label": "Roll Formula"
+          },
+          "numDice": {
+            "label": "Number of Dice"
+          },
+          "dieSize": {
+            "label": "Die Size"
+          },
+          "rollMod": {
+            "label": "Roll Modifier"
+          },
+          "quantity": {
+            "label": "Quantity"
+          },
+          "weight": {
+            "label": "Weight"
+          }
         }
       },
       "Spell": {
         "FIELDS": {
-          "level": { "label": "Spell Level" }
+          "level": {
+            "label": "Spell Level"
+          }
         },
         "SpellLVL": "Level {level} Spells",
         "AddLVL": "Add LVL {level}"

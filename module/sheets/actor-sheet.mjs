@@ -13,8 +13,8 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   static DEFAULT_OPTIONS = {
     classes: ['dragon-ball-universe', 'actor'],
     position: {
-      width: 600,
-      height: 600,
+      width: 700,
+      height: 700,
     },
     actions: {
       onEditImage: this._onEditImage,

@@ -23,3 +23,10 @@ DRAGON_BALL_UNIVERSE.abilityAbbreviations = {
   ma: 'DRAGON_BALL_UNIVERSE.Ability.Ma.abbr',
   pe: 'DRAGON_BALL_UNIVERSE.Ability.Pe.abbr',
 };
+
+DRAGON_BALL_UNIVERSE.savingThrows = {
+  corporeal: 'DRAGON_BALL_UNIVERSE.SavingThrow.Corporeal',
+  cognitive: 'DRAGON_BALL_UNIVERSE.SavingThrow.Cognitive',
+  morale: 'DRAGON_BALL_UNIVERSE.SavingThrow.Morale',
+  impulsive: 'DRAGON_BALL_UNIVERSE.SavingThrow.Impulsive',
+};
