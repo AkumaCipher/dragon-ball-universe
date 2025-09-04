@@ -1,0 +1,194 @@
+{{! Combat Tab }}
+<section class='tab combat scrollable {{tab.cssClass}}' data-group='primary' data-tab='combat'>
+
+  <h3 class="dragon-ball-universe header">
+    Combat References
+  </h3>
+
+  <section class='grid grid-5col'>
+    <div class='resource flex-group-center'>
+      <label for='system.health.value' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.strike.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.combatRolls.strike.value}} ({{system.combatRolls.strike.critTarget}}+)
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label for='system.combatRolls.dodge' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.dodge.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.combatRolls.dodge.value}} ({{system.combatRolls.dodge.critTarget}}+)
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.wound.woundPhysical.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.combatRolls.wound.physicalWound.value}} ({{system.combatRolls.wound.physicalWound.critTarget}}+)
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.wound.woundEnergy.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.combatRolls.wound.energyWound.value}} ({{system.combatRolls.wound.energyWound.critTarget}}+)
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.wound.woundMagic.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.combatRolls.wound.magicWound.value}} ({{system.combatRolls.wound.magicWound.critTarget}}+)
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class='grid grid-5col'>
+    <div class='resource flex-group-center'>
+      <label for='system.speed' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.speed.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.speed.normalSpeed}} / {{system.speed.boostedSpeed}}
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label for='system.surge.powerSurge' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.soak.label'}} / {{localize
+        'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.damageReduction.abbr'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.soak}} / {{system.damageReduction}}
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label for='system.health.value' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.tierOfPowerExtraDice.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.tierOfPowerExtraDice.all}}
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label for='system.health.value' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.greaterDice.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.greaterDice.all}}
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label for='system.health.value' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.criticalDice.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.criticalDice.all}}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <hr>
+
+  <section class='grid grid-5col'>
+    <div class='resource flex-group-center'>
+      <label for='system.damageReduction' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.healthThreshold.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{localize system.healthThresholdLabelPath}}
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label for='system.health.value' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.surge.label'}}
+      </label>
+
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+        <span>
+          {{system.surge.healingSurgeDice}} / {{system.surge.powerSurgeKiRestored}} /
+          {{system.surge.powerSurgeCapacityRestored}}
+        </span>
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.thresholdChecks.bruised.label'}}
+      </label>
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 5%;">
+        <input class="align-center" type='checkbox' name='system.thresholdChecks.bruised' {{checked
+          system.thresholdChecks.bruised}} />
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.thresholdChecks.injured.label'}}
+      </label>
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 5%;">
+        <input class="align-center" type='checkbox' name='system.thresholdChecks.injured' {{checked
+          system.thresholdChecks.injured}} />
+      </div>
+    </div>
+
+    <div class='resource flex-group-center'>
+      <label class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.thresholdChecks.critical.label'}}
+      </label>
+      <div class='resource-content flexrow flex-center flex-between' style="padding-top: 5%;">
+        <input class="align-center" type='checkbox' name='system.thresholdChecks.critical' {{checked
+          system.thresholdChecks.critical}} />
+      </div>
+    </div>
+  </section>
+
+</section>

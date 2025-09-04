@@ -45,7 +45,7 @@
         "Biography": "Biography",
         "Features": "Features",
         "Gear": "Gear",
-        "Spells": "Spells",
+        "Combat": "Combat",
         "Effects": "Effects"
       },
       "base": {
@@ -106,7 +106,7 @@
           "haste": {
             "label": "Haste"
           },
-          "savingThrows":{
+          "savingThrows": {
             "label": "Saving Throws"
           },
           "speed": {
@@ -126,6 +126,50 @@
           "might": {
             "label": "Might"
           },
+          "tierOfPowerExtraDice": {
+            "label": "ToP Extra Dice"
+          },
+          "greaterDice": {
+            "label": "Greater Dice"
+          },
+          "criticalDice": {
+            "label": "Critical Dice"
+          },
+          "surge": {
+            "label": "Surge",
+            "healingSurge": {
+              "label": "Healing Surge"
+            },
+            "powerSurge": {
+              "label": "Power Surge"
+            }
+          },
+          "healthThreshold":{
+            "label": "Health Threshold",
+            "healthy": {
+              "label": "Healthy"
+            },
+            "bruised": {
+              "label": "Bruised"
+            },
+            "injured": {
+              "label": "Injured"
+            },
+            "critical": {
+              "label": "Critical"
+            }
+          },
+          "thresholdChecks": {
+            "bruised": {
+              "label": "Passed Bruised?"
+            },
+            "injured": {
+              "label": "Passed Injured?"
+            },
+            "critical": {
+              "label": "Passed Critical?"
+            }
+          },
           "combatRolls": {
             "label": "Combat Rolls",
             "strike": {
@@ -142,7 +186,7 @@
               "woundEnergy": {
                 "label": "Wound (Energy)"
               },
-              "woundMagical": {
+              "woundMagic": {
                 "label": "Wound (Magical)"
               }
             }

@@ -41,6 +41,12 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       }),
     });
 
+    schema.thresholdChecks = new fields.SchemaField({
+      bruised: new fields.BooleanField(),
+      injured: new fields.BooleanField(),
+      critical: new fields.BooleanField()
+    });
+
     // Iterate over ability names and create a new SchemaField for each.
     schema.abilities = new fields.SchemaField(
       Object.keys(CONFIG.DRAGON_BALL_UNIVERSE.abilities).reduce(
@@ -95,9 +101,11 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     this._prepareAptitudesData(systemData, abilities); // Preparing Aptitudes and related rules
 
+    this._prepareHealthThresholdData(systemData); // Preparing Health Threshold Data and Penalties
+
     this._prepareCombatRollsData(systemData, abilities); // Preparing Combat Rolls
 
-    this._prepareMiscData(systemData, abilities, level); // Preparing Surges, Stress Bonus, and other miscellaneous rules
+    this._prepareMiscData(systemData, level); // Preparing Surges, Stress Bonus, and other miscellaneous rules
   }
 
   _prepareCommonExtraDice(systemData) {
@@ -139,18 +147,21 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     // Create the extra dice objects for each combat roll.
     systemData.tierOfPowerExtraDice = {
+      all: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.tierOfPower.all, 1, systemData.tierOfPowerExtraDiceAmount),
       strike: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.tierOfPower.strike, 1, systemData.tierOfPowerExtraDiceAmount),
       dodge: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.tierOfPower.dodge, 1, systemData.tierOfPowerExtraDiceAmount),
       wound: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.tierOfPower.wound, 1, systemData.tierOfPowerExtraDiceAmount),
     };
 
     systemData.greaterDice = {
+      all: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.greaterDice.all, 1, systemData.greaterDiceAmount),
       strike: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.greaterDice.strike, 1, systemData.greaterDiceAmount),
       dodge: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.greaterDice.strike, 1, systemData.greaterDiceAmount),
       wound: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.greaterDice.strike, 1, systemData.greaterDiceAmount),
     };
 
     systemData.criticalDice = {
+      all: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.criticalDice.all, 1, systemData.criticalDiceAmount),
       strike: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.criticalDice.strike, 1, systemData.criticalDiceAmount),
       dodge: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.criticalDice.strike, 1, systemData.criticalDiceAmount),
       wound: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.criticalDice.strike, 1, systemData.criticalDiceAmount),
@@ -283,6 +294,41 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     };
   }
 
+  _prepareHealthThresholdData(systemData) {
+    // Declare health thresholds variables
+
+    // Calculate the current Health Threshold as a numerical value (0 = Healthy, 1 = Bruised, etc)
+    systemData.healthThresholdNum = systemData.health.value < Math.round(systemData.health.max / 2) ?
+      (systemData.health.value < Math.round(systemData.health.max / 4) ?
+        (systemData.health.value < Math.round(systemData.health.max / 10) ? 3 : 2) : 1) : 0;
+
+    // Declare the current Health Threshold
+    switch (systemData.healthThresholdNum) {
+      case 3:
+        systemData.currentHealthThreshold = 'critical';
+        break;
+      case 2:
+        systemData.currentHealthThreshold = 'injured';
+        break;
+      case 1:
+        systemData.currentHealthThreshold = 'bruised';
+        break;
+      case 0:
+        systemData.currentHealthThreshold = 'healthy';
+        break;
+    }
+
+    systemData.healthThresholdLabelPath = `DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.healthThreshold.${systemData.currentHealthThreshold}.label`;
+
+    // Declare which health threshold penalty is on depending on whether the actor is below said threshold and passed the steadfast check 
+    systemData.bruisedHealthThresholdPenalty = Math.max((systemData.health.value < Math.round(systemData.health.max / 2) ? 1 : 0) - (systemData.thresholdChecks.bruised ? 1 : 0), 0);
+    systemData.injuredHealthThresholdPenalty = Math.max((systemData.health.value < Math.round(systemData.health.max / 4) ? 1 : 0) - (systemData.thresholdChecks.injured ? 1 : 0), 0);
+    systemData.criticalHealthThresholdPenalty = Math.max((systemData.health.value < Math.round(systemData.health.max / 10) ? 1 : 0) - (systemData.thresholdChecks.critical ? 1 : 0), 0);
+
+    // Final threshold penalty (Without the bT Multiplication)
+    systemData.thresholdPenalty = systemData.bruisedHealthThresholdPenalty + systemData.injuredHealthThresholdPenalty + systemData.criticalHealthThresholdPenalty;
+  }
+
   _prepareCombatRollsData(systemData, abilities) {
     /* Declare combat rolls */
 
@@ -294,33 +340,63 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     systemData.magicWoundMod = "ma";
 
     // Wound, Strike, and Dodge bonuses and penalties
+    const woundAllPenalty = (systemData.thresholdPenalty * systemData.baseTierOfPower);
+
     const physicalWound = abilities[systemData.physicalWoundMod].mod;
+    const woundPhysicalBonus = 0;
+    const woundPhysicalPenalty = woundAllPenalty;
+    const totalPhysicalWound = Math.max((physicalWound + woundPhysicalBonus - woundPhysicalPenalty), 0);
+
     const energyWound = abilities[systemData.energyWoundMod].mod;
+    const woundEnergyBonus = 0;
+    const woundEnergyPenalty = woundAllPenalty;
+    const totalEnergyWound = Math.max((energyWound + woundEnergyBonus - woundEnergyPenalty), 0);
+
     const magicWound = abilities[systemData.magicWoundMod].mod;
+    const woundMagicBonus = 0;
+    const woundMagicPenalty = woundAllPenalty;
+    const totalMagicWound = Math.max((magicWound + woundMagicBonus - woundMagicPenalty), 0);
+
     const maxWound = Math.max(physicalWound, energyWound, magicWound);
 
     const strike = systemData.haste + systemData.awareness;
-    const dodge = systemData.defenseValue;
-
     const strikeBonus = 0;
-    const dodgeBonus = 0;
+    const strikePenalty = (systemData.superStack.strikePenalty * systemData.currentTierOfPower) + (systemData.thresholdPenalty * systemData.baseTierOfPower);
+    const totalStrike = Math.max(strike + strikeBonus - strikePenalty, 0);
 
-    const strikePenalty = -(systemData.superStack.strikePenalty * systemData.currentTierOfPower);
-    const dodgePenalty = -(systemData.superStack.dodgePenalty * systemData.currentTierOfPower);
+    const dodge = systemData.defenseValue;
+    const dodgeBonus = 0;
+    const dodgePenalty = (systemData.superStack.dodgePenalty * systemData.currentTierOfPower) + (systemData.thresholdPenalty * systemData.baseTierOfPower);
+    const totalDodge = Math.max(dodge + dodgeBonus - dodgePenalty, 0);
 
     // Final combat rolls object with the final values
     systemData.combatRolls = {
       wound: {
-        physicalWound: physicalWound,
+        physicalWound: {
+          value: totalPhysicalWound,
+          critTarget: 10
+        },
 
-        energyWound: energyWound,
+        energyWound: {
+          value: totalEnergyWound,
+          critTarget: 10
+        },
 
-        magicWound: magicWound,
+        magicWound: {
+          value: totalMagicWound,
+          critTarget: 10
+        },
 
         maxWound: maxWound,
       },
-      strike: strike + strikeBonus + strikePenalty,
-      dodge: dodge + dodgeBonus + dodgePenalty,
+      strike: {
+        value: totalStrike,
+        critTarget: 10
+      },
+      dodge: {
+        value: totalDodge,
+        critTarget: 10
+      },
     }
 
   }
@@ -336,14 +412,16 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     const powerSurgeCapacityRestored = Math.floor(systemData.capacityRate.max / 4); // A fourth of max Capacity Rate, rounded down.
 
-    systemData.surges = {
+    systemData.surge = {
       healingSurgeDice: healingSurgeDice,
       powerSurgeKiRestored: powerSurgeKiRestored,
       powerSurgeCapacityRestored: powerSurgeCapacityRestored,
     };
 
     // Stress Bonus
-    systemData.stressBonus = level + systemData.determination + 1; // Level + Determination Bonus + 1
+    systemData.stressBonus = level + systemData.determination + 1; // Level + Determination Bonus + 1 - Threshold Penalties
+
+    systemData.stressBonus = Math.max(systemData.stressBonus - systemData.thresholdPenalty, 0)
 
   }
 
@@ -360,7 +438,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     if (this.combatRolls) {
       for (let [k, v] of Object.entries(this.combatRolls)) {
-        data[k] = foundry.utils.deepClone(v);
+        data[k] = foundry.utils.deepClone(v.value);
       }
     }
 
@@ -368,7 +446,6 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     data["T"] = foundry.utils.deepClone(this.currentTierOfPower);
 
     data["bT"] = foundry.utils.deepClone(this.baseTierOfPower);
-
 
     data.lvl = this.attributes.level.value;
 

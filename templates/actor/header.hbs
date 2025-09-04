@@ -69,12 +69,14 @@
       </div>
 
       <div class='resource flex-group-center'>
-        <label for='system.ki.value' class='resource-label'>
+        <label for='system.baseTierOfPower' class='resource-label'>
           {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.baseTierOfPower.label'}}
         </label>
-        <div class='resource-content flexrow flex-center flex-between'>
-          <input class="align-center" type='text' name='system.baseTierOfPower' value='{{system.baseTierOfPower}}'
-            data-dtype='Number' readonly="true" />
+
+        <div class='resource-content flexrow flex-center flex-between' style="padding-top: 4.5%;">
+          <span>
+            {{system.baseTierOfPower}}
+          </span>
         </div>
       </div>
 
@@ -82,9 +84,11 @@
         <label class='resource-label'>
           {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.currentTierOfPower.label'}}
         </label>
-        <div class='resource-content flexrow flex-center flex-between'>
-          <input class="align-center" type='text' name='system.currentTierOfPower' value='{{system.currentTierOfPower}}'
-            data-dtype='Number' readonly="true" />
+
+        <div class='resource-content flexrow flex-center flex-between' style="padding-top: 4.5%;">
+          <span>
+            {{system.currentTierOfPower}}
+          </span>
         </div>
       </div>
     </div>

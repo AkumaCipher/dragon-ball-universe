@@ -223,6 +223,13 @@
   text-align: center;
 }
 
+.dragon-ball-universe .header {
+  font-weight: bold;
+  /* add padding top and bottom */
+  padding-top: 5px;
+  text-align: center;
+}
+
 /* Styles limited to dragon-ball-universe sheets */
 .dragon-ball-universe .item-form {
   font-family: "Roboto", sans-serif;

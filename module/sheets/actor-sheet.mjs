@@ -52,8 +52,8 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       template: 'systems/dragon-ball-universe/templates/actor/gear.hbs',
       scrollable: [""],
     },
-    spells: {
-      template: 'systems/dragon-ball-universe/templates/actor/spells.hbs',
+    combat: {
+      template: 'systems/dragon-ball-universe/templates/actor/combat.hbs',
       scrollable: [""],
     },
     effects: {
@@ -72,7 +72,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // Control which parts show based on document subtype
     switch (this.document.type) {
       case 'character':
-        options.parts.push('features', 'gear', 'spells', 'effects');
+        options.parts.push('features', 'combat', 'gear', 'effects');
         break;
     }
   }
@@ -110,7 +110,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   async _preparePartContext(partId, context) {
     switch (partId) {
       case 'features':
-      case 'spells':
+      case 'combat':
       case 'gear':
         context.tab = context.tabs[partId];
         break;
@@ -153,7 +153,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // If you have sub-tabs this is necessary to change
     const tabGroup = 'primary';
     // Default tab for first time it's rendered this session
-    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = 'features';
+    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = 'combat';
     return parts.reduce((tabs, partId) => {
       const tab = {
         cssClass: '',
@@ -181,9 +181,9 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
           tab.id = 'gear';
           tab.label += 'Gear';
           break;
-        case 'spells':
-          tab.id = 'spells';
-          tab.label += 'Spells';
+        case 'combat':
+          tab.id = 'combat';
+          tab.label += 'Combat';
           break;
         case 'effects':
           tab.id = 'effects';
