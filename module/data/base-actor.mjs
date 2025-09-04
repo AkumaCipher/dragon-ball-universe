@@ -83,39 +83,80 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     /* Calculate the Tier of Power */
 
-    const abilities = systemData.abilities;
-
-    this._prepareTierOfPowerExtraDice(systemData, level);
-
-    this._prepareResourcesData(systemData, abilities, level);
-
-    this._prepareAptitudesData(systemData, abilities);
-
-    this._prepareCombatRollsData(systemData, abilities);
-  }
-
-    _prepareTierOfPowerExtraDice(systemData, level) {
-
     systemData.baseTierOfPower = Math.floor(level / 5) + 1;
 
     systemData.currentTierOfPower = systemData.baseTierOfPower; // + any temporary modifiers from effects, transformations, etc.
 
-    const tierOfPowerExtraDiceCategory = systemData.currentTierOfPower - 1;
+    const abilities = systemData.abilities;
 
-    const strikeTierOfPowerExtraDiceCategory = tierOfPowerExtraDiceCategory;
-    const dodgeTierOfPowerExtraDiceCategory = tierOfPowerExtraDiceCategory;
-    const woundTierOfPowerExtraDiceCategory = tierOfPowerExtraDiceCategory;
+    this._prepareCommonExtraDice(systemData); // Preparing ToP Extra Dice, Greater Dice, and Critical Dice
 
-    systemData.tierOfPowerExtraDiceAmount = 1;
+    this._prepareResourcesData(systemData, abilities, level); // Preparing Health, Ki, Capacity Rate
 
-    systemData.tierOfPowerExtraDice = {
-      strike: createExtraDiceByCategory(strikeTierOfPowerExtraDiceCategory, 1, systemData.tierOfPowerExtraDiceAmount),
-      dodge: createExtraDiceByCategory(dodgeTierOfPowerExtraDiceCategory, 1, systemData.tierOfPowerExtraDiceAmount),
-      wound: createExtraDiceByCategory(woundTierOfPowerExtraDiceCategory, 1, systemData.tierOfPowerExtraDiceAmount),
-    }
+    this._prepareAptitudesData(systemData, abilities); // Preparing Aptitudes and related rules
 
+    this._prepareCombatRollsData(systemData, abilities); // Preparing Combat Rolls
+
+    this._prepareMiscData(systemData, abilities, level); // Preparing Surges, Stress Bonus, and other miscellaneous rules
   }
 
+  _prepareCommonExtraDice(systemData) {
+
+    /* Declare the extra dice category for ToP extra Dice, Greater Dice, and Critical Dice for combat rolls */
+
+    const tierOfPowerExtraDiceCategory = systemData.currentTierOfPower - 1;
+
+    const greaterDiceCategory = systemData.currentTierOfPower; // The Greater Dice Category.
+
+    const criticalDiceCategory = systemData.currentTierOfPower + 1; // The Critical Dice Category.
+
+    systemData.combatRollsExtraDiceCategory = {
+      tierOfPower: {
+        all: tierOfPowerExtraDiceCategory,
+        strike: tierOfPowerExtraDiceCategory,
+        dodge: tierOfPowerExtraDiceCategory,
+        wound: tierOfPowerExtraDiceCategory
+      },
+      greaterDice: {
+        all: greaterDiceCategory,
+        strike: greaterDiceCategory,
+        dodge: greaterDiceCategory,
+        wound: greaterDiceCategory
+      },
+      criticalDice: {
+        all: criticalDiceCategory,
+        strike: criticalDiceCategory,
+        dodge: criticalDiceCategory,
+        wound: criticalDiceCategory
+      }
+    };
+
+    systemData.tierOfPowerExtraDiceAmount = 1; // The amount of times the ToP Extra Dice is applied to the roll.
+
+    systemData.greaterDiceAmount = 1; // The amount of times the Greater Dice is applied to the roll.
+
+    systemData.criticalDiceAmount = 1; // The amount of times the Critical Dice is applied to the roll.
+
+    // Create the extra dice objects for each combat roll.
+    systemData.tierOfPowerExtraDice = {
+      strike: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.tierOfPower.strike, 1, systemData.tierOfPowerExtraDiceAmount),
+      dodge: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.tierOfPower.dodge, 1, systemData.tierOfPowerExtraDiceAmount),
+      wound: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.tierOfPower.wound, 1, systemData.tierOfPowerExtraDiceAmount),
+    };
+
+    systemData.greaterDice = {
+      strike: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.greaterDice.strike, 1, systemData.greaterDiceAmount),
+      dodge: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.greaterDice.strike, 1, systemData.greaterDiceAmount),
+      wound: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.greaterDice.strike, 1, systemData.greaterDiceAmount),
+    };
+
+    systemData.criticalDice = {
+      strike: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.criticalDice.strike, 1, systemData.criticalDiceAmount),
+      dodge: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.criticalDice.strike, 1, systemData.criticalDiceAmount),
+      wound: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.criticalDice.strike, 1, systemData.criticalDiceAmount),
+    };
+
+  }
 
   _prepareResourcesData(systemData, abilities, level) {
     /* Calculate Life Modifier */
@@ -245,12 +286,14 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
   _prepareCombatRollsData(systemData, abilities) {
     /* Declare combat rolls */
 
+    // Declare modifier used for each type of wound (Which can be modified by effects such as the 'Magic Warrior' talent)
     systemData.physicalWoundMod = "fo";
 
     systemData.energyWoundMod = "fo";
 
     systemData.magicWoundMod = "ma";
 
+    // Wound, Strike, and Dodge bonuses and penalties
     const physicalWound = abilities[systemData.physicalWoundMod].mod;
     const energyWound = abilities[systemData.energyWoundMod].mod;
     const magicWound = abilities[systemData.magicWoundMod].mod;
@@ -265,6 +308,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     const strikePenalty = -(systemData.superStack.strikePenalty * systemData.currentTierOfPower);
     const dodgePenalty = -(systemData.superStack.dodgePenalty * systemData.currentTierOfPower);
 
+    // Final combat rolls object with the final values
     systemData.combatRolls = {
       wound: {
         physicalWound: physicalWound,
@@ -280,7 +324,29 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     }
 
   }
-  
+
+  _prepareMiscData(systemData, level) {
+    // Surges
+
+    systemData.tierOfPowerForSurges = systemData.currentTierOfPower; // + any temporary modifiers from effects, most notably the talent 'Never Surrender'.
+
+    const healingSurgeDice = `${createExtraDiceByCategory(8, systemData.tierOfPowerForSurges)}+${systemData.surgency}`; // 2d10(T) + Surgency
+
+    const powerSurgeKiRestored = Math.floor(systemData.ki.max / 4) + systemData.surgency; // A fourth of max Ki, rounded down, plus the character's Surgency.
+
+    const powerSurgeCapacityRestored = Math.floor(systemData.capacityRate.max / 4); // A fourth of max Capacity Rate, rounded down.
+
+    systemData.surges = {
+      healingSurgeDice: healingSurgeDice,
+      powerSurgeKiRestored: powerSurgeKiRestored,
+      powerSurgeCapacityRestored: powerSurgeCapacityRestored,
+    };
+
+    // Stress Bonus
+    systemData.stressBonus = level + systemData.determination + 1; // Level + Determination Bonus + 1
+
+  }
+
   getRollData() {
     const data = {};
 
@@ -298,9 +364,11 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       }
     }
 
+    // Copy Tier of Power info to top level for easy access in rolls
     data["T"] = foundry.utils.deepClone(this.currentTierOfPower);
 
     data["bT"] = foundry.utils.deepClone(this.baseTierOfPower);
+
 
     data.lvl = this.attributes.level.value;
 
