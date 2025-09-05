@@ -10,12 +10,12 @@
         <div class='ability flexrow flex-group-center'>
           <label class='resource-label rollable flexlarge align-left' data-action='roll'
             data-roll='d10+@abilities.{{key}}.value'
-            data-label='{{localize (lookup @root.config.abilities key)}}'>{{localize (lookup @root.config.abilities
+            data-label='{{localize (lookup @root.config.abilities key)}} Score'>{{localize (lookup @root.config.abilities
             key)}}</label>
           <input class="align-center" type='text' name='system.abilities.{{key}}.value' value='{{ability.value}}'
             class="ability-score" data-dtype='Number' />
           <span class='ability-mod rollable' data-action='roll' data-roll='d10+@abilities.{{key}}.mod'
-            data-label='{{localize (lookup @root.config.abilities key)}}'>{{numberFormat ability.mod decimals=0
+            data-label='{{localize (lookup @root.config.abilities key)}} Modifier'>{{numberFormat ability.mod decimals=0
             sign=true}}</span>
         </div>
         {{/each}}
