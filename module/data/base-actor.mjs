@@ -83,6 +83,11 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
   }
 
+  /**
+   * Prepare all relevant Character Data, such as common extra dice, resources, aptitudes, health thresholds,
+   * combat rolls, and miscellaneous data. 
+   * @param {*} systemData The Actor's data
+   */
   _prepareCharacterData(systemData) {
 
     const level = systemData.attributes.level.value;
@@ -108,6 +113,11 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     this._prepareMiscData(systemData, level); // Preparing Surges, Stress Bonus, and other miscellaneous rules
   }
 
+  /**
+   * Prepare the common extra dice a character can have (Tier of Power, Greater and Critical Dice),
+   * with their categories, separate for each combat roll, their amounts, and their values (Ex: 1d4).
+   * @param {*} systemData The Actor's data
+   */
   _prepareCommonExtraDice(systemData) {
 
     /* Declare the extra dice category for ToP extra Dice, Greater Dice, and Critical Dice for combat rolls */
@@ -169,6 +179,12 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
   }
 
+  /**
+   * Prepare the LP Modifiers, KP modifiers and the CR modifiers, as well as the final values.
+   * @param {*} systemData The Actor's data
+   * @param {*} abilities The Actor's attributes
+   * @param {*} level The Actor's level
+   */
   _prepareResourcesData(systemData, abilities, level) {
     /* Calculate Life Modifier */
 
@@ -200,6 +216,12 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     systemData.capacityRate.max = 20 + levelCapacityRateModifier;
   }
 
+  /**
+   * This prepares most of the aptitudes present in the DBU page https://www.dbu-rpg.com/attributes, 
+   * including Saving Throws, Super Stacks, and more.
+   * @param {*} systemData The Actor's data
+   * @param {*} abilities The Actor's attributes
+   */
   _prepareAptitudesData(systemData, abilities) {
     /* Declare aptitudes */
 
@@ -294,6 +316,11 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     };
   }
 
+  /**
+   * Prepare the current Health Threshold as a numerical value and for the localisation path,
+   * as well as the correct penalties depending on whether or not the steadfasts have passed.
+   * @param {*} systemData The Actor's data
+   */
   _prepareHealthThresholdData(systemData) {
     // Declare health thresholds variables
 
@@ -327,8 +354,14 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     // Final threshold penalty (Without the bT Multiplication)
     systemData.thresholdPenalty = systemData.bruisedHealthThresholdPenalty + systemData.injuredHealthThresholdPenalty + systemData.criticalHealthThresholdPenalty;
-  }
+  };
 
+  /**
+   * Prepare combat rolls, by establishing the modifiers used for the different wound rolls, 
+   * bonuses and penalties for every combat rolls, as well as the base value of the combat rolls.
+   * @param {*} systemData The Actor's data
+   * @param {*} abilities The Actor's attributes
+   */
   _prepareCombatRollsData(systemData, abilities) {
     /* Declare combat rolls */
 
@@ -399,8 +432,14 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       },
     }
 
-  }
+  };
 
+  /**
+   * Prepare values for surges (ToP for surges, Healing Surge dice and KP/CR regain from Power Surge),
+   * and Stress Bonus calculations.
+   * @param {*} systemData The Actor's data
+   * @param {*} level The Actor's level
+   */
   _prepareMiscData(systemData, level) {
     // Surges
 
