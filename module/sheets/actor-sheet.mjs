@@ -477,7 +477,13 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
           rollMode: game.settings.get('core', 'rollMode'),
         });
 
-        if (isCrit) {
+        const critAutomated = game.settings.get('dragon-ball-universe', 'automateCrit');
+
+        const botchAutomated = game.settings.get('dragon-ball-universe', 'automateBotch');
+
+        console.log(critAutomated, botchAutomated);
+
+        if (isCrit && critAutomated) {
           let critLabel = `The roll was a crit! Adding Critical Dice`;
 
           let criticalDiceRoll = new Roll(`${diceRoll.total}+${criticalDice}`, this.actor.getRollData());
@@ -485,6 +491,18 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
           await criticalDiceRoll.toMessage({
             speaker: ChatMessage.getSpeaker({ actor: this.actor }),
             flavor: critLabel,
+            rollMode: game.settings.get('core', 'rollMode'),
+          });
+        }
+
+        if (isBotch && botchAutomated) {
+          let botchLabel = `The roll was a botch... Reducing total roll`;
+
+          let botchDiceRoll = new Roll(`${diceRoll.total}-${actorSystem.baseTierOfPower * 2}`, this.actor.getRollData());
+
+          await botchDiceRoll.toMessage({
+            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+            flavor: botchLabel,
             rollMode: game.settings.get('core', 'rollMode'),
           });
         }

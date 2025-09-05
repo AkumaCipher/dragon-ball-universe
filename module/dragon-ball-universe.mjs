@@ -46,6 +46,18 @@ Hooks.once('init', function () {
     decimals: 2,
   };
 
+  game.settings.register('dragon-ball-universe', 'automateCrit', {
+    name: 'Automate Critical Rolls?',
+    config: true,
+    type: new foundry.data.fields.BooleanField(),
+  });
+
+  game.settings.register('dragon-ball-universe', 'automateBotch', {
+    name: 'Automate Botched Rolls?',
+    config: true,
+    type: new foundry.data.fields.BooleanField(),
+  });
+
   // Define custom Document and DataModel classes
   CONFIG.Actor.documentClass = DragonBallUniverseActor;
 
