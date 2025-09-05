@@ -49,13 +49,17 @@ Hooks.once('init', function () {
   game.settings.register('dragon-ball-universe', 'automateCrit', {
     name: 'Automate Critical Rolls?',
     config: true,
+    scope: "user",
     type: new foundry.data.fields.BooleanField(),
+    default: true
   });
 
   game.settings.register('dragon-ball-universe', 'automateBotch', {
     name: 'Automate Botched Rolls?',
     config: true,
+    scope: "user",
     type: new foundry.data.fields.BooleanField(),
+    default: false
   });
 
   // Define custom Document and DataModel classes
