@@ -23,6 +23,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       deleteDoc: this._deleteDoc,
       toggleEffect: this._toggleEffect,
       roll: this._onRoll,
+      promptRoll: this._onPromptRoll
     },
     // Custom property that's merged into `this.options`
     // dragDrop: [{ dragSelector: '.draggable', dropSelector: null }],
@@ -402,6 +403,108 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       return roll;
     }
   }
+
+  /**
+   * Handles rolling, either for Combat Rolls which handles crits, or simple rolls with [data-roll].
+   * @param {*} event The originating click event
+   * @param {*} target The capturing HTML element which defined a [data-action]
+   * @returns 
+   */
+  static async _onPromptRoll(event, target) {
+    event.preventDefault();
+
+    const dataset = target.dataset;
+
+    const isShift = event.shiftKey;
+    const actorSystem = this.actor.system;
+
+    const forAttr = target.getAttribute("for");
+
+    const isCombatRoll = forAttr.includes('strike') || forAttr.includes('dodge') || forAttr.includes('wound')
+
+    if (isCombatRoll) {
+      var roll = `1d10`;
+
+      var combatRoll;
+
+      const rollTypes = ['strike', 'dodge', 'wound'];
+      const woundTypes = ['Physical', 'Energy', 'Magic'];
+
+      combatRoll = rollTypes.find(type => forAttr.includes(type));
+
+      let woundRoll;
+      if (combatRoll === 'wound') {
+        woundRoll = woundTypes.find(type => forAttr.includes(type))?.toLowerCase();
+      }
+
+      const topExtraDice = actorSystem.tierOfPowerExtraDice[combatRoll];
+
+      if (topExtraDice != '') roll += `+${topExtraDice}`;
+
+      if (combatRoll != 'wound') {
+        roll += `+${actorSystem.combatRolls[combatRoll].value}`;
+      } else {
+        roll += `+${actorSystem.combatRolls.wound[`${woundRoll}Wound`].value}`;
+      }
+
+      var critTarget;
+
+      if (combatRoll != 'wound') {
+        critTarget = actorSystem.combatRolls[combatRoll].critTarget;
+      } else {
+        critTarget = actorSystem.combatRolls.wound[`${woundRoll}Wound`].critTarget;
+      }
+
+      var criticalDice = actorSystem.criticalDice[combatRoll];
+
+      if (isShift === true) {
+
+        let diceRoll = new Roll(roll, this.actor.getRollData());
+
+        await diceRoll.evaluate();
+
+        let baseDieResult = diceRoll.terms[0].results[0].result;
+
+        let isCrit = baseDieResult >= critTarget;
+
+        let isBotch = baseDieResult == 1; // Placeholder for now
+
+        let label = `${dataset.label} Roll (${critTarget}+) from ${this.actor.name}!`
+
+        await diceRoll.toMessage({
+          speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+          flavor: label,
+          rollMode: game.settings.get('core', 'rollMode'),
+        });
+
+        if (isCrit) {
+          let critLabel = `The roll was a crit! Adding Critical Dice`;
+
+          let criticalDiceRoll = new Roll(`${diceRoll.total}+${criticalDice}`, this.actor.getRollData());
+
+          await criticalDiceRoll.toMessage({
+            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+            flavor: critLabel,
+            rollMode: game.settings.get('core', 'rollMode'),
+          });
+        }
+
+        return diceRoll;
+      } else {
+        return;
+      };
+    } else if (!isCombatRoll && dataset.roll) {
+      let diceRoll = new Roll(dataset.roll, this.actor.getRollData());
+
+      await diceRoll.toMessage({
+        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+        flavor: label,
+        rollMode: game.settings.get('core', 'rollMode'),
+      });
+
+      return diceRoll;
+    } else return;
+  };
 
   /** Helper Functions */
 
