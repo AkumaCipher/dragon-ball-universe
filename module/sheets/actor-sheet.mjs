@@ -1,6 +1,7 @@
 import { prepareActiveEffectCategories } from '../helpers/effects.mjs';
+import { createExtraDiceByCategory, doCombatRoll, prepareCombatRollPrompt, prepareRollData } from '../helpers/utils.mjs';
 
-const { api, sheets } = foundry.applications;
+const { api, sheets, fields } = foundry.applications;
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -23,7 +24,8 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       deleteDoc: this._deleteDoc,
       toggleEffect: this._toggleEffect,
       roll: this._onRoll,
-      promptRoll: this._onPromptRoll
+      strikeOrDodge: this._onStrikeOrDodge,
+      wound: this._onWound
     },
     // Custom property that's merged into `this.options`
     // dragDrop: [{ dragSelector: '.draggable', dropSelector: null }],
@@ -393,7 +395,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
 
     // Handle rolls that supply the formula directly.
     if (dataset.roll) {
-      let label = dataset.label ? `[ability] ${dataset.label}` : '';
+      let label = dataset.label ? ` ${dataset.label} Roll from ${this.actor.name}!` : '';
       let roll = new Roll(dataset.roll, this.actor.getRollData());
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
@@ -405,124 +407,254 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   }
 
   /**
-   * Handles rolling, either for Combat Rolls which handles crits, or simple rolls with [data-roll].
-   * @param {*} event The originating click event
-   * @param {*} target The capturing HTML element which defined a [data-action]
-   * @returns 
+   * This serves as the main method for rolling Strike and Dodge.
+   * @param {PointerEvent} event The originating click event
+   * @param {HTMLElement} target The capturing HTML element which defined a [data-action]
    */
-  static async _onPromptRoll(event, target) {
+  static async _onStrikeOrDodge(event, target) {
     event.preventDefault();
 
     const dataset = target.dataset;
 
+    const combatRoll = dataset.combatroll;
+
     const isShift = event.shiftKey;
     const actorSystem = this.actor.system;
 
-    const forAttr = target.getAttribute("for");
+    var {
+      topExtraDiceCategory,
+      topExtraDiceAmount,
+      greaterDiceCategory,
+      greaterDiceAmount,
+      criticalDiceCategory,
+      criticalDiceAmount,
+      extraDice
+    } = prepareRollData(actorSystem, combatRoll);
 
-    const isCombatRoll = forAttr.includes('strike') || forAttr.includes('dodge') || forAttr.includes('wound')
+    var critTarget = actorSystem.combatRolls[combatRoll].critTarget;
 
-    if (isCombatRoll) {
-      var roll = `1d10`;
+    var naturalResultMod = actorSystem.combatRolls[combatRoll].naturalResultMod;
 
-      var combatRoll;
+    var combatRollBonus = actorSystem.combatRolls[combatRoll].value;
 
-      const rollTypes = ['strike', 'dodge', 'wound'];
-      const woundTypes = ['Physical', 'Energy', 'Magic'];
+    // Prompt for Roll Bonuses
 
-      combatRoll = rollTypes.find(type => forAttr.includes(type));
+    if (isShift) {
+      var combatRollLabel = combatRoll == 'strike' ? 'Strike' : 'Dodge'
+      var content = await prepareCombatRollPrompt(combatRollLabel);
 
-      let woundRoll;
-      if (combatRoll === 'wound') {
-        woundRoll = woundTypes.find(type => forAttr.includes(type))?.toLowerCase();
-      }
+      let data;
 
-      const topExtraDice = actorSystem.tierOfPowerExtraDice[combatRoll];
+      data = await foundry.applications.api.DialogV2.input({
+        window: { title: `${combatRollLabel} Roll Customisation!` },
+        content: content,
+        position: {
+          width: 800,
+        },
+        ok: {
+          label: "Roll",
+          icon: "fa-solid fa-dice-d6",
+        },
+        submit: result => {
 
-      if (topExtraDice != '') roll += `+${topExtraDice}`;
+          try {
 
-      if (combatRoll != 'wound') {
-        roll += `+${actorSystem.combatRolls[combatRoll].value}`;
-      } else {
-        roll += `+${actorSystem.combatRolls.wound[`${woundRoll}Wound`].value}`;
-      }
+            var flatBonus = result.flatBonus.replace(/[^0-9+-]+/, '');
 
-      var critTarget;
+            flatBonus = eval(flatBonus.replaceAll('++', '+').replaceAll('--', '-'));
 
-      if (combatRoll != 'wound') {
-        critTarget = actorSystem.combatRolls[combatRoll].critTarget;
-      } else {
-        critTarget = actorSystem.combatRolls.wound[`${woundRoll}Wound`].critTarget;
-      }
+            var topBonus = result.topBonus.replace(/[^0-9+-]+/, '');
 
-      var criticalDice = actorSystem.criticalDice[combatRoll];
+            topBonus = eval(topBonus.replaceAll('++', '+').replaceAll('--', '-')) * actorSystem.currentTierOfPower;
 
-      if (isShift === true) {
+            var bTopBonus = result.bTopBonus.replace(/[^0-9+-]+/, '');
 
-        let diceRoll = new Roll(roll, this.actor.getRollData());
+            bTopBonus = eval(bTopBonus.replaceAll('++', '+').replaceAll('--', '-')) * actorSystem.baseTierOfPower;
 
-        await diceRoll.evaluate();
+            extraDice[1] += result.extraD4;
+            extraDice[2] += result.extraD6;
+            extraDice[3] += result.extraD8;
+            extraDice[4] += result.extraD10;
 
-        let baseDieResult = diceRoll.terms[0].results[0].result;
+            combatRollBonus += flatBonus + topBonus + bTopBonus;
 
-        let isCrit = baseDieResult >= critTarget;
+            naturalResultMod += result.natMod;
 
-        let isBotch = baseDieResult == 1; // Placeholder for now
-
-        let label = `${dataset.label} Roll (${critTarget}+) from ${this.actor.name}!`
-
-        await diceRoll.toMessage({
-          speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-          flavor: label,
-          rollMode: game.settings.get('core', 'rollMode'),
-        });
-
-        const critAutomated = game.settings.get('dragon-ball-universe', 'automateCrit');
-
-        const botchAutomated = game.settings.get('dragon-ball-universe', 'automateBotch');
-
-        console.log(critAutomated, botchAutomated);
-
-        if (isCrit && critAutomated) {
-          let critLabel = `The roll was a crit! Adding Critical Dice`;
-
-          let criticalDiceRoll = new Roll(`${diceRoll.total}+${criticalDice}`, this.actor.getRollData());
-
-          await criticalDiceRoll.toMessage({
-            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-            flavor: critLabel,
-            rollMode: game.settings.get('core', 'rollMode'),
-          });
+            topExtraDiceCategory += result.topDiceCat;
+            topExtraDiceAmount += result.topDiceAgain;
+            greaterDiceCategory += result.greaterDiceCat;
+            greaterDiceAmount += result.greaterDiceAgain;
+            criticalDiceCategory += result.criticalDiceCat;
+          } catch (error) {
+            console.error(error);
+            return;
+          }
         }
-
-        if (isBotch && botchAutomated) {
-          let botchLabel = `The roll was a botch... Reducing total roll`;
-
-          let botchDiceRoll = new Roll(`${diceRoll.total}-${actorSystem.baseTierOfPower * 2}`, this.actor.getRollData());
-
-          await botchDiceRoll.toMessage({
-            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-            flavor: botchLabel,
-            rollMode: game.settings.get('core', 'rollMode'),
-          });
-        }
-
-        return diceRoll;
-      } else {
-        return;
-      };
-    } else if (!isCombatRoll && dataset.roll) {
-      let diceRoll = new Roll(dataset.roll, this.actor.getRollData());
-
-      await diceRoll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-        flavor: label,
-        rollMode: game.settings.get('core', 'rollMode'),
       });
+    }
 
-      return diceRoll;
-    } else return;
-  };
+    // Roll Creation
+
+    var roll = '1d10';
+
+    var topExtraDice = createExtraDiceByCategory(topExtraDiceCategory, 1, topExtraDiceAmount);
+
+    if (topExtraDice != '') roll += `+${topExtraDice}`;
+
+    var greaterDice = createExtraDiceByCategory(greaterDiceCategory, 1, greaterDiceAmount);
+
+    if (greaterDice != '') roll += `+${greaterDice}`;
+
+    Object.keys(extraDice).forEach(function (key) {
+      if (extraDice[key] != 0) {
+        var extraDiceToAdd = createExtraDiceByCategory(key, 1, extraDice[key]);
+
+        roll += `+${extraDiceToAdd}`;
+      }
+    });
+
+    roll += `+${combatRollBonus}`;
+
+    var critInfo = {
+      critTarget: 10,
+      criticalDice: createExtraDiceByCategory(criticalDiceCategory, 1, criticalDiceAmount),
+      naturalResultMod
+    };
+
+    doCombatRoll(this.actor, roll, dataset.label, critInfo);
+  }
+
+  /**
+   * This serves as the amin method for rolling all Wound Types.
+   * @param {PointerEvent} event The originating click event
+   * @param {HTMLElement} target The capturing HTML element which defined a [data-action]
+   */
+  static async _onWound(event, target) {
+    event.preventDefault();
+
+    const dataset = target.dataset;
+
+    const woundType = dataset.woundtype;
+
+    const isShift = event.shiftKey;
+    const actorSystem = this.actor.system;
+
+    var {
+      topExtraDiceCategory,
+      topExtraDiceAmount,
+      greaterDiceCategory,
+      greaterDiceAmount,
+      criticalDiceCategory,
+      criticalDiceAmount,
+      extraDice
+    } = prepareRollData(actorSystem, 'wound');
+
+    var critTarget = actorSystem.combatRolls.wound[woundType].critTarget;
+
+    var naturalResultMod = actorSystem.combatRolls.wound[woundType].naturalResultMod;
+
+    var woundBonus = actorSystem.combatRolls.wound[woundType].value;
+
+    var superStackDiceCategory = actorSystem.superStack.diceCat;
+
+    var superStackDiceAmount = 1;
+
+    // Prompt for Roll Bonuses
+
+    if (isShift) {
+      var content = await prepareCombatRollPrompt('Wound', woundType);
+
+      let data;
+
+      data = await foundry.applications.api.DialogV2.input({
+        window: { title: `Wound Roll Customisation!` },
+        content: content,
+        position: {
+          width: 800,
+        },
+        ok: {
+          label: "Roll",
+          icon: "fa-solid fa-dice-d6",
+        },
+        submit: result => {
+          try {
+
+            var flatBonus = result.flatBonus.replace(/[^0-9+-]+/, '');
+
+            flatBonus = eval(flatBonus.replaceAll('++', '+').replaceAll('--', '-'));
+
+            var topBonus = result.topBonus.replace(/[^0-9+-]+/, '');
+
+            topBonus = eval(topBonus.replaceAll('++', '+').replaceAll('--', '-')) * actorSystem.currentTierOfPower;
+
+            var bTopBonus = result.bTopBonus.replace(/[^0-9+-]+/, '');
+
+            bTopBonus = eval(bTopBonus.replaceAll('++', '+').replaceAll('--', '-')) * actorSystem.baseTierOfPower;
+
+            extraDice[1] += result.extraD4;
+            extraDice[2] += result.extraD6;
+            extraDice[3] += result.extraD8;
+            extraDice[4] += result.extraD10;
+
+            woundBonus += flatBonus + topBonus + bTopBonus;
+
+            naturalResultMod += result.natMod;
+
+            topExtraDiceCategory += result.topDiceCat;
+            topExtraDiceAmount += result.topDiceAgain;
+            greaterDiceCategory += result.greaterDiceCat;
+            greaterDiceAmount += result.greaterDiceAgain;
+            criticalDiceCategory += result.criticalDiceCat;
+
+            if (!woundType.includes('magic')) {
+              superStackDiceCategory += result.superStackCat;
+              superStackDiceAmount += result.superStackAgain;
+            }
+
+          } catch (error) {
+            console.error(error);
+            return;
+          }
+        }
+      });
+    }
+
+    // Roll Creation
+
+    var roll = '1d10';
+
+    var topExtraDice = createExtraDiceByCategory(topExtraDiceCategory, 1, topExtraDiceAmount);
+
+    if (topExtraDice != '') roll += `+${topExtraDice}`;
+
+    var greaterDice = createExtraDiceByCategory(greaterDiceCategory, 1, greaterDiceAmount);
+
+    if (greaterDice != '') roll += `+${greaterDice}`;
+
+    if (!woundType.includes('magic')) {
+      var superStackDice = createExtraDiceByCategory(superStackDiceCategory, actorSystem.currentTierOfPower, superStackDiceAmount);
+
+      if (superStackDice != '') roll += `+${superStackDice}`;
+    }
+
+    Object.keys(extraDice).forEach(function (key) {
+      if (extraDice[key] != 0) {
+        var extraDiceToAdd = createExtraDiceByCategory(key, 1, extraDice[key]);
+
+        roll += `+${extraDiceToAdd}`;
+      }
+    });
+
+    roll += `+${woundBonus}`;
+
+    var critInfo = {
+      critTarget: 10,
+      criticalDice: createExtraDiceByCategory(criticalDiceCategory, 1, criticalDiceAmount),
+      naturalResultMod
+    };
+
+    doCombatRoll(this.actor, roll, dataset.label, critInfo);
+  }
 
   /** Helper Functions */
 
@@ -709,3 +841,4 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     }
   }
 }
+

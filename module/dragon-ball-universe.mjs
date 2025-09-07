@@ -54,6 +54,15 @@ Hooks.once('init', function () {
     default: true
   });
 
+  game.settings.register('dragon-ball-universe', 'automateNatMod', {
+    name: 'Automate Nat Total Rolls?',
+    hint: 'If a natural increase/decrease to your Base Die would modify the total result, show said total result. ',
+    config: true,
+    scope: "user",
+    type: new foundry.data.fields.BooleanField(),
+    default: true
+  });
+
   game.settings.register('dragon-ball-universe', 'automateBotch', {
     name: 'Automate Botched Rolls?',
     config: true,

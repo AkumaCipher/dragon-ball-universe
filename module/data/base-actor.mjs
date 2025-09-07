@@ -79,8 +79,6 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     this._prepareCharacterData(this);
 
-    // console.log(this);
-
   }
 
   /**
@@ -149,11 +147,11 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       }
     };
 
-    systemData.tierOfPowerExtraDiceAmount = 1; // The amount of times the ToP Extra Dice is applied to the roll.
+    systemData.tierOfPowerExtraDiceAmount = 1; // The amount of times the ToP Extra Dice is applied to a roll.
 
-    systemData.greaterDiceAmount = 1; // The amount of times the Greater Dice is applied to the roll.
+    systemData.greaterDiceAmount = 0; // The amount of times the Greater Dice is applied to a roll.
 
-    systemData.criticalDiceAmount = 1; // The amount of times the Critical Dice is applied to the roll.
+    systemData.criticalDiceAmount = 1; // The amount of times the Critical Dice is applied to a critical roll.
 
     // Create the extra dice objects for each combat roll.
     systemData.tierOfPowerExtraDice = {
@@ -237,7 +235,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     const boostedSpeed = 2 + abilities.ag.mod;
 
-    systemData.speed = { normalSpeed: normalSpeed, boostedSpeed: boostedSpeed };
+    systemData.speed = { normalSpeed, boostedSpeed };
 
     // Might aptitude
 
@@ -268,6 +266,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     systemData.superStack = {
       amount: superStackAmount,
+      diceCat: superStackDiceCategory,
       dice: superStackDice,
       strikePenalty: superStackStrikePenalty,
       dodgePenalty: superStackDodgePenalty,
@@ -407,28 +406,33 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       wound: {
         physicalWound: {
           value: totalPhysicalWound,
-          critTarget: 10
+          critTarget: 10,
+          naturalResultMod: 0
         },
 
         energyWound: {
           value: totalEnergyWound,
-          critTarget: 10
+          critTarget: 10,
+          naturalResultMod: 0
         },
 
         magicWound: {
           value: totalMagicWound,
-          critTarget: 10
+          critTarget: 10,
+          naturalResultMod: 0
         },
 
         maxWound: maxWound,
       },
       strike: {
         value: totalStrike,
-        critTarget: 10
+        critTarget: 10,
+        naturalResultMod: 0
       },
       dodge: {
         value: totalDodge,
-        critTarget: 10
+        critTarget: 10,
+        naturalResultMod: 0
       },
     }
 
