@@ -16,6 +16,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       }),
       max: new fields.NumberField({ ...requiredInteger, initial: 60 }),
     });
+
     schema.ki = new fields.SchemaField({
       value: new fields.NumberField({
         ...requiredInteger,
@@ -33,7 +34,10 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       }),
       max: new fields.NumberField({ ...requiredInteger, initial: 20 }),
     });
+
     schema.biography = new fields.HTMLField();
+
+    schema.transformationTabDescription = new fields.HTMLField();
 
     schema.attributes = new fields.SchemaField({
       level: new fields.SchemaField({
@@ -79,6 +83,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     this._prepareCharacterData(this);
 
+    // console.log(this);
   }
 
   /**

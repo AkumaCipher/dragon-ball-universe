@@ -1,7 +1,7 @@
 import { prepareActiveEffectCategories } from '../helpers/effects.mjs';
 import { createExtraDiceByCategory, doCombatRoll, prepareCombatRollPrompt, prepareRollData } from '../helpers/utils.mjs';
 
-const { api, sheets, fields } = foundry.applications;
+const { api, sheets, fields, ux } = foundry.applications;
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -47,6 +47,10 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       template: 'systems/dragon-ball-universe/templates/actor/features.hbs',
       scrollable: [""],
     },
+    transformations: {
+      template: 'systems/dragon-ball-universe/templates/actor/transformations.hbs',
+      scrollable: [""],
+    },
     biography: {
       template: 'systems/dragon-ball-universe/templates/actor/biography.hbs',
       scrollable: [""],
@@ -75,7 +79,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // Control which parts show based on document subtype
     switch (this.document.type) {
       case 'character':
-        options.parts.push('features', 'combat', 'gear', 'effects');
+        options.parts.push('features', 'combat', 'transformations', 'gear', 'effects',);
         break;
     }
   }
@@ -114,6 +118,21 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     switch (partId) {
       case 'features':
       case 'combat':
+      case 'transformations':
+        // Enrich biography info for display
+        // Enrichment turns text like `[[/r 1d10]]` into buttons
+        context.enrichedTransformationInformation = await ux.TextEditor.enrichHTML(
+          this.actor.system.transformationTabDescription,
+          {
+            // Whether to show secret blocks in the finished html
+            secrets: this.document.isOwner,
+            // Data to fill in for inline rolls
+            rollData: this.actor.getRollData(),
+            // Relative UUID resolution
+            relativeTo: this.actor,
+          }
+        );
+        break;
       case 'gear':
         context.tab = context.tabs[partId];
         break;
@@ -121,7 +140,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         context.tab = context.tabs[partId];
         // Enrich biography info for display
         // Enrichment turns text like `[[/r 1d10]]` into buttons
-        context.enrichedBiography = await TextEditor.enrichHTML(
+        context.enrichedBiography = await ux.TextEditor.enrichHTML(
           this.actor.system.biography,
           {
             // Whether to show secret blocks in the finished html
@@ -187,6 +206,10 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         case 'combat':
           tab.id = 'combat';
           tab.label += 'Combat';
+          break;
+        case 'transformations':
+          tab.id = 'transformations';
+          tab.label += 'Transformations';
           break;
         case 'effects':
           tab.id = 'effects';

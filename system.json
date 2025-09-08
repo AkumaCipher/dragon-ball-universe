@@ -11,7 +11,7 @@
   "documentTypes": {
     "Actor": {
         "character": {
-            "htmlFields": ["biography"]
+            "htmlFields": ["biography","transformationTabDescription"]
         }
     },
     "Item": {

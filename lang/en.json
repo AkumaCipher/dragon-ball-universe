@@ -46,12 +46,16 @@
         "Features": "Features",
         "Gear": "Gear",
         "Combat": "Combat",
+        "Transformations": "Transformations",
         "Effects": "Effects"
       },
       "base": {
         "FIELDS": {
           "biography": {
             "label": "Biography"
+          },
+          "transformationTabDescription": {
+            "label": "Transformation Information"
           },
           "health": {
             "value": {
@@ -144,7 +148,7 @@
               "label": "Power Surge"
             }
           },
-          "healthThreshold":{
+          "healthThreshold": {
             "label": "Health Threshold",
             "healthy": {
               "label": "Healthy"

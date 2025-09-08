@@ -1,0 +1,11 @@
+{{! Transformations Tab }}
+<section class='tab transformations scrollable {{tab.cssClass}}' data-group='primary' data-tab='transformations'>
+
+{{! Editors must receive enriched text data from getData to properly handle rolls, UUID links, etc. }}
+  {{#if editable}} 
+    <prose-mirror name="system.transformationTabDescription" data-document-uuid="{{actor.uuid}}" value="{{system.transformationTabDescription}}" collaborate="true" toggled="true">
+      {{{enrichedTransformationInformation}}}
+    </prose-mirror>
+  {{else}} {{{enrichedTransformationInformation}}}
+  {{/if}}
+</section>
