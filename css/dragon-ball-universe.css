@@ -268,6 +268,11 @@
 .dragon-ball-universe .tab.biography .editor {
   height: 100%;
 }
+
+.dragon-ball-universe .tab.transformations .editor {
+  height: 100%;
+}
+
 .dragon-ball-universe .tox .tox-editor-container {
   background: var(--dragon-ball-universe-c-white);
 }

@@ -61,6 +61,10 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
               initial: 1,
               min: 0,
             }),
+            transformationMod: new fields.StringField({
+              initial: '0',
+              trim: true
+            }),
           });
           return obj;
         },
@@ -103,6 +107,8 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     const abilities = systemData.abilities;
 
+    this._prepareTransformationModifiers(systemData, abilities); // Adds Transformation Modifiers Bonuses
+
     this._prepareCommonExtraDice(systemData); // Preparing ToP Extra Dice, Greater Dice, and Critical Dice
 
     this._prepareResourcesData(systemData, abilities, level); // Preparing Health, Ki, Capacity Rate
@@ -114,7 +120,44 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     this._prepareCombatRollsData(systemData, abilities); // Preparing Combat Rolls
 
     this._prepareMiscData(systemData, level); // Preparing Surges, Stress Bonus, and other miscellaneous rules
-  }
+  };
+
+  /**
+   * This enables Transformation Modifiers, adding them on top of the modifiers to create the final modifiers.
+   * @param {Object} abilities The attributes  of a DBU Character
+   */
+  _prepareTransformationModifiers(systemData, abilities) {
+
+    Object.keys(abilities).forEach(ability => {
+
+      var transformationMod = abilities[ability].transformationMod;
+
+      if (transformationMod == '') transformationMod = '0';
+
+      transformationMod = transformationMod.replace(/\s+/g, '');
+
+      transformationMod = transformationMod.replace('++', '+').replace('--', '-').replace('((', '(').replace('))', ')');
+
+      abilities[ability].transformationMod = transformationMod;
+
+      var correctString = /^([0-9]+|\(T\)|[+-])+$/.test(transformationMod);
+
+      if (transformationMod != '0' && correctString) {
+
+        let total = 0;
+
+        transformationMod = transformationMod.replaceAll('(T)', '*systemData.currentTierOfPower');
+
+        total += eval(transformationMod);
+
+        console.log(total);
+
+        abilities[ability].mod += total;
+      };
+
+      // abilities[ability].mod += abilities[ability].transformationMod;
+    });
+  };
 
   /**
    * Prepare the common extra dice a character can have (Tier of Power, Greater and Critical Dice),
@@ -180,7 +223,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       wound: createExtraDiceByCategory(systemData.combatRollsExtraDiceCategory.criticalDice.strike, 1, systemData.criticalDiceAmount),
     };
 
-  }
+  };
 
   /**
    * Prepare the LP Modifiers, KP modifiers and the CR modifiers, as well as the final values.
@@ -217,7 +260,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     const levelCapacityRateModifier = 4 * (level - 1);
 
     systemData.capacityRate.max = 20 + levelCapacityRateModifier;
-  }
+  };
 
   /**
    * This prepares most of the aptitudes present in the DBU page https://www.dbu-rpg.com/attributes, 
@@ -318,7 +361,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       morale: abilities.pe.value,
       impulsive: abilities.ag.value,
     };
-  }
+  };
 
   /**
    * Prepare the current Health Threshold as a numerical value and for the localisation path,
@@ -447,7 +490,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
    * Prepare values for surges (ToP for surges, Healing Surge dice and KP/CR regain from Power Surge),
    * and Stress Bonus calculations.
    * @param {*} systemData The Actor's data
-   * @param {*} level The Actor's level
+   * @param {Number} level The Actor's level
    */
   _prepareMiscData(systemData, level) {
     // Surges
@@ -471,7 +514,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     systemData.stressBonus = Math.max(systemData.stressBonus - systemData.thresholdPenalty, 0)
 
-  }
+  };
 
   getRollData() {
     const data = {};

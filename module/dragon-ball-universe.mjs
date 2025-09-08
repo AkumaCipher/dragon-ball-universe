@@ -114,6 +114,10 @@ Handlebars.registerHelper('toLowerCase', function (str) {
   return str.toLowerCase();
 });
 
+Handlebars.registerHelper('getSettingValue', function (str) {
+  return game.settings.get('dragon-ball-universe', str);
+});
+
 /* -------------------------------------------- */
 /*  Ready Hook                                  */
 /* -------------------------------------------- */

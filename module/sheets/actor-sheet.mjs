@@ -117,8 +117,13 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   async _preparePartContext(partId, context) {
     switch (partId) {
       case 'features':
+        context.tab = context.tabs[partId];
+        break;
       case 'combat':
+        context.tab = context.tabs[partId];
+        break;
       case 'transformations':
+        context.tab = context.tabs[partId];
         // Enrich biography info for display
         // Enrichment turns text like `[[/r 1d10]]` into buttons
         context.enrichedTransformationInformation = await ux.TextEditor.enrichHTML(
