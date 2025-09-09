@@ -150,8 +150,6 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
         total += eval(transformationMod);
 
-        console.log(total);
-
         abilities[ability].mod += total;
       };
 

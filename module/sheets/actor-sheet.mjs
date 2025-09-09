@@ -290,10 +290,23 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
    */
   async _onRender(context, options) {
     await super._onRender(context, options);
+
     this.#disableOverrides();
     // You may want to add other special handling here
     // Foundry comes with a large number of utility classes, e.g. SearchFilter
     // That you may want to implement yourself.
+
+    const currentHealthInput = this.element.querySelector('input[name="system.health.value"]');
+    const currentKiInput = this.element.querySelector('input[name="system.ki.value"]');
+    const currentCapacityInput = this.element.querySelector('input[name="system.capacityRate.value"]');
+
+    const inputs = [currentHealthInput, currentKiInput, currentCapacityInput];
+
+    for (let input of inputs) {
+      input.addEventListener('change', (e) => {
+        e.target.value = eval(e.target.value);
+      });
+    }
   }
 
   /**************
