@@ -14,8 +14,14 @@
           <input class="align-center" type='text' name='system.abilities.{{key}}.transformationMod'
             value='{{ability.transformationMod}}' class="ability-score" />
         </div>
-        {{/each}}
+
+        {{#if (eq key 'pe')}}
         
+        {{else}}
+        <br>
+        {{/if}}
+        {{/each}}
+
         <hr>
 
         <div class='ability flexrow flex-group-center'>
