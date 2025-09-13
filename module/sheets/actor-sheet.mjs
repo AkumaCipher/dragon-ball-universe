@@ -43,8 +43,8 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       // Foundry-provided generic template
       template: 'templates/generic/tab-navigation.hbs',
     },
-    features: {
-      template: 'systems/dragon-ball-universe/templates/actor/features.hbs',
+    attributes: {
+      template: 'systems/dragon-ball-universe/templates/actor/attributes.hbs',
       scrollable: [""],
     },
     transformations: {
@@ -79,7 +79,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // Control which parts show based on document subtype
     switch (this.document.type) {
       case 'character':
-        options.parts.push('features', 'combat', 'transformations', 'gear', 'effects',);
+        options.parts.push('attributes', 'combat', 'transformations', 'gear', 'effects',);
         break;
     }
   }
@@ -116,7 +116,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   /** @override */
   async _preparePartContext(partId, context) {
     switch (partId) {
-      case 'features':
+      case 'attributes':
         context.tab = context.tabs[partId];
         break;
       case 'combat':
@@ -200,9 +200,9 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
           tab.id = 'biography';
           tab.label += 'Biography';
           break;
-        case 'features':
-          tab.id = 'features';
-          tab.label += 'Features';
+        case 'attributes':
+          tab.id = 'attributes';
+          tab.label += 'Attributes';
           break;
         case 'gear':
           tab.id = 'gear';
