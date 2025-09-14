@@ -520,14 +520,14 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         },
         submit: (result) => {
           try {
-            var flatBonus = valueParser(result.flatBonus, actorSystem);
+            var bonus = valueParser(result.bonus, actorSystem);
 
             extraDice[1] += result.extraD4;
             extraDice[2] += result.extraD6;
             extraDice[3] += result.extraD8;
             extraDice[4] += result.extraD10;
 
-            combatRollBonus += flatBonus;
+            combatRollBonus += bonus;
 
             naturalResultMod += result.natMod;
 
@@ -585,9 +585,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       ),
       naturalResultMod,
     };
-
-    console.log(critInfo);
-
+ 
     doCombatRoll(this.actor, roll, dataset.label, critInfo);
   }
 

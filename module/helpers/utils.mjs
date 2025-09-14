@@ -180,17 +180,17 @@ export function prepareRollData(actorSystem, combatRoll) {
 export async function prepareCombatRollPrompt(combatRoll, woundType = "") {
   var content = `<h2 style='text-align:center;'>${combatRoll} Roll Customisation</h2>`;
 
-  var flatBonusInput = fields.createTextInput({
-    name: "flatBonus",
+  var bonusInput = fields.createTextInput({
+    name: "bonus",
     value: 0,
   });
 
-  var flatBonusGroup = fields.createFormGroup({
-    input: flatBonusInput,
-    label: "Any flat modifiers?",
+  var bonusGroup = fields.createFormGroup({
+    input: bonusInput,
+    label: "Any modifiers?",
   });
 
-  content += `<section class='grid grid-2col'> <div><span data-tooltip='You can use (T) and (bT) modifiers, like this: "2+2(T)-1(bT)"'>${flatBonusGroup.outerHTML}</span>`;
+  content += `<section class='grid grid-2col'> <div><span data-tooltip='You can use (T) and (bT) modifiers, like this: "2+2(T)-1(bT)"'>${bonusGroup.outerHTML}</span>`;
 
   var topDiceAgainInput = fields.createNumberInput({
     name: "topDiceAgain",
