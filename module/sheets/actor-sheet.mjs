@@ -585,7 +585,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       ),
       naturalResultMod,
     };
- 
+
     doCombatRoll(this.actor, roll, dataset.label, critInfo);
   }
 
@@ -644,32 +644,18 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         },
         submit: (result) => {
           try {
-            var flatBonus = result.flatBonus.replace(/[^0-9+-]+/, "");
-
-            flatBonus = eval(
-              flatBonus.replaceAll("++", "+").replaceAll("--", "-")
-            );
-
-            var topBonus = result.topBonus.replace(/[^0-9+-]+/, "");
-
-            topBonus =
-              eval(topBonus.replaceAll("++", "+").replaceAll("--", "-")) *
-              actorSystem.currentTierOfPower;
-
-            var bTopBonus = result.bTopBonus.replace(/[^0-9+-]+/, "");
-
-            bTopBonus =
-              eval(bTopBonus.replaceAll("++", "+").replaceAll("--", "-")) *
-              actorSystem.baseTierOfPower;
+            var bonus = valueParser(result.bonus, actorSystem);
 
             extraDice[1] += result.extraD4;
             extraDice[2] += result.extraD6;
             extraDice[3] += result.extraD8;
             extraDice[4] += result.extraD10;
 
-            woundBonus += flatBonus + topBonus + bTopBonus;
+            woundBonus += bonus;
 
             naturalResultMod += result.natMod;
+
+            critTarget += result.criticalTarget;
 
             topExtraDiceCategory += result.topDiceCat;
             topExtraDiceAmount += result.topDiceAgain;
