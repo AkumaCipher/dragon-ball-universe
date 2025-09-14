@@ -1,5 +1,11 @@
-import { prepareActiveEffectCategories } from '../helpers/effects.mjs';
-import { createExtraDiceByCategory, doCombatRoll, prepareCombatRollPrompt, prepareRollData } from '../helpers/utils.mjs';
+import { prepareActiveEffectCategories } from "../helpers/effects.mjs";
+import {
+  createExtraDiceByCategory,
+  doCombatRoll,
+  prepareCombatRollPrompt,
+  prepareRollData,
+  valueParser,
+} from "../helpers/utils.mjs";
 
 const { api, sheets, fields, ux } = foundry.applications;
 
@@ -12,7 +18,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
 ) {
   /** @override */
   static DEFAULT_OPTIONS = {
-    classes: ['dragon-ball-universe', 'actor'],
+    classes: ["dragon-ball-universe", "actor"],
     position: {
       width: 700,
       height: 700,
@@ -25,7 +31,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       toggleEffect: this._toggleEffect,
       roll: this._onRoll,
       strikeOrDodge: this._onStrikeOrDodge,
-      wound: this._onWound
+      wound: this._onWound,
     },
     // Custom property that's merged into `this.options`
     // dragDrop: [{ dragSelector: '.draggable', dropSelector: null }],
@@ -37,34 +43,35 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   /** @override */
   static PARTS = {
     header: {
-      template: 'systems/dragon-ball-universe/templates/actor/header.hbs',
+      template: "systems/dragon-ball-universe/templates/actor/header.hbs",
     },
     tabs: {
       // Foundry-provided generic template
-      template: 'templates/generic/tab-navigation.hbs',
+      template: "templates/generic/tab-navigation.hbs",
     },
     attributes: {
-      template: 'systems/dragon-ball-universe/templates/actor/attributes.hbs',
+      template: "systems/dragon-ball-universe/templates/actor/attributes.hbs",
       scrollable: [""],
     },
     transformations: {
-      template: 'systems/dragon-ball-universe/templates/actor/transformations.hbs',
+      template:
+        "systems/dragon-ball-universe/templates/actor/transformations.hbs",
       scrollable: [""],
     },
     biography: {
-      template: 'systems/dragon-ball-universe/templates/actor/biography.hbs',
+      template: "systems/dragon-ball-universe/templates/actor/biography.hbs",
       scrollable: [""],
     },
     gear: {
-      template: 'systems/dragon-ball-universe/templates/actor/gear.hbs',
+      template: "systems/dragon-ball-universe/templates/actor/gear.hbs",
       scrollable: [""],
     },
     combat: {
-      template: 'systems/dragon-ball-universe/templates/actor/combat.hbs',
+      template: "systems/dragon-ball-universe/templates/actor/combat.hbs",
       scrollable: [""],
     },
     effects: {
-      template: 'systems/dragon-ball-universe/templates/actor/effects.hbs',
+      template: "systems/dragon-ball-universe/templates/actor/effects.hbs",
       scrollable: [""],
     },
   };
@@ -73,13 +80,19 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   _configureRenderOptions(options) {
     super._configureRenderOptions(options);
     // Not all parts always render
-    options.parts = ['header', 'tabs', 'biography'];
+    options.parts = ["header", "tabs", "biography"];
     // Don't show the other tabs if only limited view
     if (this.document.limited) return;
     // Control which parts show based on document subtype
     switch (this.document.type) {
-      case 'character':
-        options.parts.push('attributes', 'combat', 'transformations', 'gear', 'effects',);
+      case "character":
+        options.parts.push(
+          "attributes",
+          "combat",
+          "transformations",
+          "gear",
+          "effects"
+        );
         break;
     }
   }
@@ -116,32 +129,33 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   /** @override */
   async _preparePartContext(partId, context) {
     switch (partId) {
-      case 'attributes':
+      case "attributes":
         context.tab = context.tabs[partId];
         break;
-      case 'combat':
+      case "combat":
         context.tab = context.tabs[partId];
         break;
-      case 'transformations':
+      case "transformations":
         context.tab = context.tabs[partId];
         // Enrich biography info for display
         // Enrichment turns text like `[[/r 1d10]]` into buttons
-        context.enrichedTransformationInformation = await ux.TextEditor.enrichHTML(
-          this.actor.system.transformationTabDescription,
-          {
-            // Whether to show secret blocks in the finished html
-            secrets: this.document.isOwner,
-            // Data to fill in for inline rolls
-            rollData: this.actor.getRollData(),
-            // Relative UUID resolution
-            relativeTo: this.actor,
-          }
-        );
+        context.enrichedTransformationInformation =
+          await ux.TextEditor.enrichHTML(
+            this.actor.system.transformationTabDescription,
+            {
+              // Whether to show secret blocks in the finished html
+              secrets: this.document.isOwner,
+              // Data to fill in for inline rolls
+              rollData: this.actor.getRollData(),
+              // Relative UUID resolution
+              relativeTo: this.actor,
+            }
+          );
         break;
-      case 'gear':
+      case "gear":
         context.tab = context.tabs[partId];
         break;
-      case 'biography':
+      case "biography":
         context.tab = context.tabs[partId];
         // Enrich biography info for display
         // Enrichment turns text like `[[/r 1d10]]` into buttons
@@ -157,7 +171,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
           }
         );
         break;
-      case 'effects':
+      case "effects":
         context.tab = context.tabs[partId];
         // Prepare active effects
         context.effects = prepareActiveEffectCategories(
@@ -178,50 +192,50 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
    */
   _getTabs(parts) {
     // If you have sub-tabs this is necessary to change
-    const tabGroup = 'primary';
+    const tabGroup = "primary";
     // Default tab for first time it's rendered this session
-    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = 'combat';
+    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = "combat";
     return parts.reduce((tabs, partId) => {
       const tab = {
-        cssClass: '',
+        cssClass: "",
         group: tabGroup,
         // Matches tab property to
-        id: '',
+        id: "",
         // FontAwesome Icon, if you so choose
-        icon: '',
+        icon: "",
         // Run through localization
-        label: 'DRAGON_BALL_UNIVERSE.Actor.Tabs.',
+        label: "DRAGON_BALL_UNIVERSE.Actor.Tabs.",
       };
       switch (partId) {
-        case 'header':
-        case 'tabs':
+        case "header":
+        case "tabs":
           return tabs;
-        case 'biography':
-          tab.id = 'biography';
-          tab.label += 'Biography';
+        case "biography":
+          tab.id = "biography";
+          tab.label += "Biography";
           break;
-        case 'attributes':
-          tab.id = 'attributes';
-          tab.label += 'Attributes';
+        case "attributes":
+          tab.id = "attributes";
+          tab.label += "Attributes";
           break;
-        case 'gear':
-          tab.id = 'gear';
-          tab.label += 'Gear';
+        case "gear":
+          tab.id = "gear";
+          tab.label += "Gear";
           break;
-        case 'combat':
-          tab.id = 'combat';
-          tab.label += 'Combat';
+        case "combat":
+          tab.id = "combat";
+          tab.label += "Combat";
           break;
-        case 'transformations':
-          tab.id = 'transformations';
-          tab.label += 'Transformations';
+        case "transformations":
+          tab.id = "transformations";
+          tab.label += "Transformations";
           break;
-        case 'effects':
-          tab.id = 'effects';
-          tab.label += 'Effects';
+        case "effects":
+          tab.id = "effects";
+          tab.label += "Effects";
           break;
       }
-      if (this.tabGroups[tabGroup] === tab.id) tab.cssClass = 'active';
+      if (this.tabGroups[tabGroup] === tab.id) tab.cssClass = "active";
       tabs[partId] = tab;
       return tabs;
     }, {});
@@ -255,15 +269,15 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // Iterate through items, allocating to containers
     for (let i of this.document.items) {
       // Append to gear.
-      if (i.type === 'gear') {
+      if (i.type === "gear") {
         gear.push(i);
       }
       // Append to features.
-      else if (i.type === 'feature') {
+      else if (i.type === "feature") {
         features.push(i);
       }
       // Append to spells.
-      else if (i.type === 'spell') {
+      else if (i.type === "spell") {
         if (i.system.spellLevel != undefined) {
           spells[i.system.spellLevel].push(i);
         }
@@ -296,14 +310,20 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // Foundry comes with a large number of utility classes, e.g. SearchFilter
     // That you may want to implement yourself.
 
-    const currentHealthInput = this.element.querySelector('input[name="system.health.value"]');
-    const currentKiInput = this.element.querySelector('input[name="system.ki.value"]');
-    const currentCapacityInput = this.element.querySelector('input[name="system.capacityRate.value"]');
+    const currentHealthInput = this.element.querySelector(
+      'input[name="system.health.value"]'
+    );
+    const currentKiInput = this.element.querySelector(
+      'input[name="system.ki.value"]'
+    );
+    const currentCapacityInput = this.element.querySelector(
+      'input[name="system.capacityRate.value"]'
+    );
 
     const inputs = [currentHealthInput, currentKiInput, currentCapacityInput];
 
     for (let input of inputs) {
-      input.addEventListener('change', (e) => {
+      input.addEventListener("change", (e) => {
         e.target.value = eval(e.target.value);
       });
     }
@@ -332,7 +352,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       {};
     const fp = new FilePicker({
       current,
-      type: 'image',
+      type: "image",
       redirectToRoot: img ? [img] : [],
       callback: (path) => {
         this.document.update({ [attr]: path });
@@ -391,7 +411,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // Loop through the dataset and add it to our docData
     for (const [dataKey, value] of Object.entries(target.dataset)) {
       // These data attributes are reserved for the action handling
-      if (['action', 'documentClass'].includes(dataKey)) continue;
+      if (["action", "documentClass"].includes(dataKey)) continue;
       // Nested properties require dot notation in the HTML, e.g. anything with `system`
       // An example exists in spells.hbs, with `data-system.spell-level`
       // which turns into the dataKey 'system.spellLevel'
@@ -429,19 +449,21 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
 
     // Handle item rolls.
     switch (dataset.rollType) {
-      case 'item':
+      case "item":
         const item = this._getEmbeddedDocument(target);
         if (item) return item.roll();
     }
 
     // Handle rolls that supply the formula directly.
     if (dataset.roll) {
-      let label = dataset.label ? ` ${dataset.label} Roll from ${this.actor.name}!` : '';
+      let label = dataset.label
+        ? ` ${dataset.label} Roll from ${this.actor.name}!`
+        : "";
       let roll = new Roll(dataset.roll, this.actor.getRollData());
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: this.actor }),
         flavor: label,
-        rollMode: game.settings.get('core', 'rollMode'),
+        rollMode: game.settings.get("core", "rollMode"),
       });
       return roll;
     }
@@ -469,7 +491,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       greaterDiceAmount,
       criticalDiceCategory,
       criticalDiceAmount,
-      extraDice
+      extraDice,
     } = prepareRollData(actorSystem, combatRoll);
 
     var critTarget = actorSystem.combatRolls[combatRoll].critTarget;
@@ -481,7 +503,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // Prompt for Roll Bonuses
 
     if (isShift) {
-      var combatRollLabel = combatRoll == 'strike' ? 'Strike' : 'Dodge'
+      var combatRollLabel = combatRoll == "strike" ? "Strike" : "Dodge";
       var content = await prepareCombatRollPrompt(combatRollLabel);
 
       let data;
@@ -496,30 +518,20 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
           label: "Roll",
           icon: "fa-solid fa-dice-d6",
         },
-        submit: result => {
-
+        submit: (result) => {
           try {
-
-            var flatBonus = result.flatBonus.replace(/[^0-9+-]+/, '');
-
-            flatBonus = eval(flatBonus.replaceAll('++', '+').replaceAll('--', '-'));
-
-            var topBonus = result.topBonus.replace(/[^0-9+-]+/, '');
-
-            topBonus = eval(topBonus.replaceAll('++', '+').replaceAll('--', '-')) * actorSystem.currentTierOfPower;
-
-            var bTopBonus = result.bTopBonus.replace(/[^0-9+-]+/, '');
-
-            bTopBonus = eval(bTopBonus.replaceAll('++', '+').replaceAll('--', '-')) * actorSystem.baseTierOfPower;
+            var flatBonus = valueParser(result.flatBonus, actorSystem);
 
             extraDice[1] += result.extraD4;
             extraDice[2] += result.extraD6;
             extraDice[3] += result.extraD8;
             extraDice[4] += result.extraD10;
 
-            combatRollBonus += flatBonus + topBonus + bTopBonus;
+            combatRollBonus += flatBonus;
 
             naturalResultMod += result.natMod;
+
+            critTarget += result.criticalTarget;
 
             topExtraDiceCategory += result.topDiceCat;
             topExtraDiceAmount += result.topDiceAgain;
@@ -530,21 +542,29 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
             console.error(error);
             return;
           }
-        }
+        },
       });
     }
 
     // Roll Creation
 
-    var roll = '1d10';
+    var roll = "1d10";
 
-    var topExtraDice = createExtraDiceByCategory(topExtraDiceCategory, 1, topExtraDiceAmount);
+    var topExtraDice = createExtraDiceByCategory(
+      topExtraDiceCategory,
+      1,
+      topExtraDiceAmount
+    );
 
-    if (topExtraDice != '') roll += `+${topExtraDice}`;
+    if (topExtraDice != "") roll += `+${topExtraDice}`;
 
-    var greaterDice = createExtraDiceByCategory(greaterDiceCategory, 1, greaterDiceAmount);
+    var greaterDice = createExtraDiceByCategory(
+      greaterDiceCategory,
+      1,
+      greaterDiceAmount
+    );
 
-    if (greaterDice != '') roll += `+${greaterDice}`;
+    if (greaterDice != "") roll += `+${greaterDice}`;
 
     Object.keys(extraDice).forEach(function (key) {
       if (extraDice[key] != 0) {
@@ -557,10 +577,16 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     roll += `+${combatRollBonus}`;
 
     var critInfo = {
-      critTarget: 10,
-      criticalDice: createExtraDiceByCategory(criticalDiceCategory, 1, criticalDiceAmount),
-      naturalResultMod
+      critTarget: Math.min(critTarget, 10),
+      criticalDice: createExtraDiceByCategory(
+        criticalDiceCategory,
+        1,
+        criticalDiceAmount
+      ),
+      naturalResultMod,
     };
+
+    console.log(critInfo);
 
     doCombatRoll(this.actor, roll, dataset.label, critInfo);
   }
@@ -587,12 +613,13 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       greaterDiceAmount,
       criticalDiceCategory,
       criticalDiceAmount,
-      extraDice
-    } = prepareRollData(actorSystem, 'wound');
+      extraDice,
+    } = prepareRollData(actorSystem, "wound");
 
     var critTarget = actorSystem.combatRolls.wound[woundType].critTarget;
 
-    var naturalResultMod = actorSystem.combatRolls.wound[woundType].naturalResultMod;
+    var naturalResultMod =
+      actorSystem.combatRolls.wound[woundType].naturalResultMod;
 
     var woundBonus = actorSystem.combatRolls.wound[woundType].value;
 
@@ -603,7 +630,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // Prompt for Roll Bonuses
 
     if (isShift) {
-      var content = await prepareCombatRollPrompt('Wound', woundType);
+      var content = await prepareCombatRollPrompt("Wound", woundType);
 
       let data;
 
@@ -617,20 +644,25 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
           label: "Roll",
           icon: "fa-solid fa-dice-d6",
         },
-        submit: result => {
+        submit: (result) => {
           try {
+            var flatBonus = result.flatBonus.replace(/[^0-9+-]+/, "");
 
-            var flatBonus = result.flatBonus.replace(/[^0-9+-]+/, '');
+            flatBonus = eval(
+              flatBonus.replaceAll("++", "+").replaceAll("--", "-")
+            );
 
-            flatBonus = eval(flatBonus.replaceAll('++', '+').replaceAll('--', '-'));
+            var topBonus = result.topBonus.replace(/[^0-9+-]+/, "");
 
-            var topBonus = result.topBonus.replace(/[^0-9+-]+/, '');
+            topBonus =
+              eval(topBonus.replaceAll("++", "+").replaceAll("--", "-")) *
+              actorSystem.currentTierOfPower;
 
-            topBonus = eval(topBonus.replaceAll('++', '+').replaceAll('--', '-')) * actorSystem.currentTierOfPower;
+            var bTopBonus = result.bTopBonus.replace(/[^0-9+-]+/, "");
 
-            var bTopBonus = result.bTopBonus.replace(/[^0-9+-]+/, '');
-
-            bTopBonus = eval(bTopBonus.replaceAll('++', '+').replaceAll('--', '-')) * actorSystem.baseTierOfPower;
+            bTopBonus =
+              eval(bTopBonus.replaceAll("++", "+").replaceAll("--", "-")) *
+              actorSystem.baseTierOfPower;
 
             extraDice[1] += result.extraD4;
             extraDice[2] += result.extraD6;
@@ -647,35 +679,46 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
             greaterDiceAmount += result.greaterDiceAgain;
             criticalDiceCategory += result.criticalDiceCat;
 
-            if (!woundType.includes('magic')) {
+            if (!woundType.includes("magic")) {
               superStackDiceCategory += result.superStackCat;
               superStackDiceAmount += result.superStackAgain;
             }
-
           } catch (error) {
             console.error(error);
             return;
           }
-        }
+        },
       });
     }
 
     // Roll Creation
 
-    var roll = '1d10';
+    var roll = "1d10";
 
-    var topExtraDice = createExtraDiceByCategory(topExtraDiceCategory, 1, topExtraDiceAmount);
+    var topExtraDice = createExtraDiceByCategory(
+      topExtraDiceCategory,
+      1,
+      topExtraDiceAmount
+    );
 
-    if (topExtraDice != '') roll += `+${topExtraDice}`;
+    if (topExtraDice != "") roll += `+${topExtraDice}`;
 
-    var greaterDice = createExtraDiceByCategory(greaterDiceCategory, 1, greaterDiceAmount);
+    var greaterDice = createExtraDiceByCategory(
+      greaterDiceCategory,
+      1,
+      greaterDiceAmount
+    );
 
-    if (greaterDice != '') roll += `+${greaterDice}`;
+    if (greaterDice != "") roll += `+${greaterDice}`;
 
-    if (!woundType.includes('magic')) {
-      var superStackDice = createExtraDiceByCategory(superStackDiceCategory, actorSystem.currentTierOfPower, superStackDiceAmount);
+    if (!woundType.includes("magic")) {
+      var superStackDice = createExtraDiceByCategory(
+        superStackDiceCategory,
+        actorSystem.currentTierOfPower,
+        superStackDiceAmount
+      );
 
-      if (superStackDice != '') roll += `+${superStackDice}`;
+      if (superStackDice != "") roll += `+${superStackDice}`;
     }
 
     Object.keys(extraDice).forEach(function (key) {
@@ -690,8 +733,12 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
 
     var critInfo = {
       critTarget: 10,
-      criticalDice: createExtraDiceByCategory(criticalDiceCategory, 1, criticalDiceAmount),
-      naturalResultMod
+      criticalDice: createExtraDiceByCategory(
+        criticalDiceCategory,
+        1,
+        criticalDiceAmount
+      ),
+      naturalResultMod,
     };
 
     doCombatRoll(this.actor, roll, dataset.label, critInfo);
@@ -706,16 +753,16 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
    * @returns {Item | ActiveEffect} The embedded Item or ActiveEffect
    */
   _getEmbeddedDocument(target) {
-    const docRow = target.closest('li[data-document-class]');
-    if (docRow.dataset.documentClass === 'Item') {
+    const docRow = target.closest("li[data-document-class]");
+    if (docRow.dataset.documentClass === "Item") {
       return this.actor.items.get(docRow.dataset.itemId);
-    } else if (docRow.dataset.documentClass === 'ActiveEffect') {
+    } else if (docRow.dataset.documentClass === "ActiveEffect") {
       const parent =
         docRow.dataset.parentId === this.actor.id
           ? this.actor
           : this.actor.items.get(docRow?.dataset.parentId);
       return parent.effects.get(docRow?.dataset.effectId);
-    } else return console.warn('Could not find document class');
+    } else return console.warn("Could not find document class");
   }
 
   /***************
@@ -732,7 +779,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
    * @protected
    */
   async _onDropActiveEffect(event, data) {
-    const aeCls = getDocumentClass('ActiveEffect');
+    const aeCls = getDocumentClass("ActiveEffect");
     const effect = await aeCls.fromDropData(data);
     if (!this.actor.isOwner || !effect) return false;
     if (effect.target === this.actor)
@@ -748,7 +795,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
    */
   async _onSortActiveEffect(event, effect) {
     /** @type {HTMLElement} */
-    const dropTarget = event.target.closest('[data-effect-id]');
+    const dropTarget = event.target.closest("[data-effect-id]");
     if (!dropTarget) return;
     const target = this._getEmbeddedDocument(dropTarget);
 
@@ -793,11 +840,11 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     for (const [itemId, updates] of Object.entries(grandchildUpdateData)) {
       await this.actor.items
         .get(itemId)
-        .updateEmbeddedDocuments('ActiveEffect', updates);
+        .updateEmbeddedDocuments("ActiveEffect", updates);
     }
 
     // Update on the main actor
-    return this.actor.updateEmbeddedDocuments('ActiveEffect', directUpdates);
+    return this.actor.updateEmbeddedDocuments("ActiveEffect", directUpdates);
   }
 
   /**
@@ -825,7 +872,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   async _onDropFolder(event, data) {
     if (!this.actor.isOwner) return [];
     const folder = await Folder.implementation.fromDropData(data);
-    if (folder.type !== 'Item') return [];
+    if (folder.type !== "Item") return [];
     const droppedItemData = await Promise.all(
       folder.contents.map(async (item) => {
         if (!(document instanceof Item)) item = await fromUuid(item.uuid);
@@ -845,7 +892,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
    */
   async _onDropItemCreate(itemData, event) {
     itemData = itemData instanceof Array ? itemData : [itemData];
-    return this.actor.createEmbeddedDocuments('Item', itemData);
+    return this.actor.createEmbeddedDocuments("Item", itemData);
   }
 
   /********************
@@ -882,4 +929,3 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     }
   }
 }
-

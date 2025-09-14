@@ -1,4 +1,4 @@
-import { createExtraDiceByCategory } from "../helpers/utils.mjs";
+import { createExtraDiceByCategory, valueParser } from "../helpers/utils.mjs";
 
 export default class DragonBallUniverseActorBase extends foundry.abstract
   .TypeDataModel {
@@ -132,28 +132,8 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
       var transformationMod = abilities[ability].transformationMod;
 
-      if (transformationMod == '') transformationMod = '0';
+      abilities[ability].mod += valueParser(transformationMod, systemData);
 
-      transformationMod = transformationMod.replace(/\s+/g, '');
-
-      transformationMod = transformationMod.replace('++', '+').replace('--', '-').replace('((', '(').replace('))', ')');
-
-      abilities[ability].transformationMod = transformationMod;
-
-      var correctString = /^([0-9]+|\(T\)|[+-])+$/.test(transformationMod);
-
-      if (transformationMod != '0' && correctString) {
-
-        let total = 0;
-
-        transformationMod = transformationMod.replaceAll('(T)', '*systemData.currentTierOfPower');
-
-        total += eval(transformationMod);
-
-        abilities[ability].mod += total;
-      };
-
-      // abilities[ability].mod += abilities[ability].transformationMod;
     });
   };
 
