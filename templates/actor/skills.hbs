@@ -1,0 +1,64 @@
+{{! Skills Tab }}
+<section class='tab skills scrollable {{tab.cssClass}}' data-group='primary'
+  data-tab='skills'>
+
+  <div class='abilities flexcol grid grid-2col'>
+    {{#each system.skills as |skill key|}}
+
+    {{#if (eq key 'knowledgeCustom')}}
+    {{else}}
+
+    <div class='ability flexrow flex-group-center'>
+      <label class='resource-label flexlarge align-left'
+        data-action='roll'>{{skill.label}}</label>
+
+      <input class="align-center" type='text'
+        name='system.skills.{{key}}.rank' value='{{skill.rank}}'
+        class="ability-score" data-dtype='Number' />
+
+      <span class='ability-mod rollable' data-action='roll'
+        data-roll='d10+{{skill.value}}'
+        data-label='{{skill.label}} Check'>{{numberFormat
+        skill.value decimals=0
+        sign=true}}</span>
+
+    </div>
+    {{/if}}
+    {{/each}}
+
+    {{#if (eq system.knowledgeCustom.name '')}}
+
+    <div class='ability flexrow flex-group-center'>
+      <label class='resource-label flexlarge align-left rollable'
+        data-action='changeCustomKnowledge'><i class="fa-solid fa-plus"></i>
+        Custom
+        Knowledge</label>
+    </div>
+
+    {{/if}}
+
+    {{#if (ne system.knowledgeCustom.name '')}}
+
+    <div class='ability flexrow flex-group-center'>
+      <label class='resource-label flexlarge align-left rollable'
+        data-action='eraseCustomKnowledge'><i class="fa-solid fa-trash"></i>
+        Remove Custom Knowledge</label>
+    </div>
+
+    <div class='ability flexrow flex-group-center'>
+      <label class='resource-label flexlarge align-left'
+        data-action='roll'>{{system.skills.knowledgeCustom.label}}</label>
+
+      <input class="align-center" type='text'
+        name='system.skills.knowledgeCustom.rank'
+        value='{{system.skills.knowledgeCustom.rank}}'
+        class="ability-score" data-dtype='Number' />
+
+      <span class='ability-mod rollable' data-action='roll'
+        data-roll='d10+{{system.skills.knowledgeCustom.value}}'
+        data-label='{{system.skills.knowledgeCustom.label}} Check'>{{numberFormat
+        system.skills.knowledgeCustom.value decimals=0
+        sign=true}}</span>
+    </div>
+    {{/if}}
+  </section>

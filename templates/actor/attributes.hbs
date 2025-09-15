@@ -1,36 +1,42 @@
 {{! Attributes Tab }}
-<section class='tab attributes scrollable {{tab.cssClass}}' data-group='primary' data-tab='attributes'>
+<section class='tab attributes scrollable {{tab.cssClass}}' data-group='primary'
+  data-tab='attributes'>
   <section class='grid grid-3col'>
     <aside class='sidebar'>
-      {{! The grid classes are defined in scss/global/_grid.scss. To use,
-      use both the "grid" and "grid-Ncol" class where "N" can be any number
-      from 1 to 12 and will create that number of columns. }}
+
       <div class='abilities flexcol'>
         {{#each system.abilities as |ability key|}}
         <div class='ability flexrow flex-group-center'>
-          <label class='resource-label rollable flexlarge align-left' data-action='roll'
+          <label class='resource-label rollable flexlarge align-left'
+            data-action='roll'
             data-roll='d10+@abilities.{{key}}.value'
-            data-label='{{localize (lookup @root.config.abilities key)}} Score'>{{localize (lookup @root.config.abilities
-            key)}}</label>
-          <input class="align-center" type='text' name='system.abilities.{{key}}.value' value='{{ability.value}}'
+            data-label='{{localize (lookup @root.config.abilities key)}} Score'>{{ability.label}}</label>
+
+          <input class="align-center" type='text'
+            name='system.abilities.{{key}}.value' value='{{ability.value}}'
             class="ability-score" data-dtype='Number' />
-          <span class='ability-mod rollable' data-action='roll' data-roll='d10+@abilities.{{key}}.mod'
-            data-label='{{localize (lookup @root.config.abilities key)}} Modifier'>{{numberFormat ability.mod decimals=0
+
+          <span class='ability-mod rollable' data-action='roll'
+            data-roll='d10+@abilities.{{key}}.mod'
+            data-label='{{localize (lookup @root.config.abilities key)}} Modifier'>{{numberFormat
+            ability.mod decimals=0
             sign=true}}</span>
+            
         </div>
         {{/each}}
       </div>
     </aside>
 
-    {{! For the main attributes list, span the right two columns }}
     <section class='main grid-span-2'>
       <div class='resources grid grid-4col'>
         <div class='resource flex-group-center'>
           <label for='system.health.value' class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.strike.label'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.strike.label'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.combatRolls.strike.value}}
             </span>
@@ -40,10 +46,12 @@
 
         <div class='resource flex-group-center'>
           <label for='system.combatRolls.dodge' class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.dodge.label'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.dodge.label'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.combatRolls.dodge.value}}
             </span>
@@ -52,10 +60,12 @@
 
         <div class='resource flex-group-center'>
           <label class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.wound.label'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.combatRolls.wound.label'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.combatRolls.wound.maxWound}}
             </span>
@@ -68,7 +78,8 @@
             {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.soak.label'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.soak}}
             </span>
@@ -81,10 +92,12 @@
       <div class='resources grid grid-4col'>
         <div class='resource flex-group-center'>
           <label for='system.health.value' class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.awareness.label'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.awareness.label'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.awareness}}
             </span>
@@ -93,10 +106,12 @@
 
         <div class='resource flex-group-center'>
           <label for='system.defenseValue' class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.defenseValue.abbr'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.defenseValue.abbr'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.defenseValue}}
             </span>
@@ -105,10 +120,12 @@
 
         <div class='resource flex-group-center'>
           <label class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.initiative.label'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.initiative.label'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.initiative}}
             </span>
@@ -117,10 +134,12 @@
 
         <div class='resource flex-group-center'>
           <label class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.damageReduction.abbr'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.damageReduction.abbr'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.damageReduction}}
             </span>
@@ -135,7 +154,8 @@
             {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.might.label'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.might}}
             </span>
@@ -144,10 +164,12 @@
 
         <div class='resource flex-group-center'>
           <label class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.superStack.label'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.superStack.label'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.superStack.amount}}
             </span>
@@ -156,10 +178,12 @@
 
         <div class='resource flex-group-center'>
           <label class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.speed.normalSpeed.abbr'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.speed.normalSpeed.abbr'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.speed.normalSpeed}}
             </span>
@@ -168,10 +192,12 @@
 
         <div class='resource flex-group-center'>
           <label class='resource-label'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.speed.boostedSpeed.abbr'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.speed.boostedSpeed.abbr'}}
           </label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{system.speed.boostedSpeed}}
             </span>
@@ -184,11 +210,13 @@
       <div class='resources grid grid-4col'>
         {{#each system.savingThrows as |savingThrow key|}}
         <div class='resource flex-group-center'>
-          <label class='resource-label' data-label='{{localize (lookup @root.config.savingThrows key)}}'>{{localize
+          <label class='resource-label'
+            data-label='{{localize (lookup @root.config.savingThrows key)}}'>{{localize
             (lookup @root.config.savingThrows
             key)}}</label>
 
-          <div class='resource-content flexrow flex-center flex-between' style="padding-top: 8%;">
+          <div class='resource-content flexrow flex-center flex-between'
+            style="padding-top: 8%;">
             <span>
               {{savingThrow}}
             </span>

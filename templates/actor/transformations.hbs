@@ -1,5 +1,6 @@
 {{! Transformations Tab }}
-<section class='tab transformations scrollable {{tab.cssClass}}' data-group='primary' data-tab='transformations'>
+<section class='tab transformations scrollable {{tab.cssClass}}'
+  data-group='primary' data-tab='transformations'>
   <section class='grid grid-3col'>
     <aside class='sidebar' style='height:100%'>
       {{! The grid classes are defined in scss/global/_grid.scss. To use,
@@ -8,17 +9,16 @@
       <div class='abilities flexcol'>
         {{#each system.abilities as |ability key|}}
         <div class='ability flexrow flex-group-center'>
-          <label class='resource-label flexlarge align-left'>{{localize (lookup
-            @root.config.abilities
-            key)}}</label>
-          <input class="align-center" type='text' name='system.abilities.{{key}}.transformationMod'
+          <label
+            class='resource-label flexlarge align-left'>{{ability.label}}</label>
+          <input class="align-center" type='text'
+            name='system.abilities.{{key}}.transformationMod'
             value='{{ability.transformationMod}}' class="ability-score" />
         </div>
 
         {{#if (eq key 'pe')}}
-        
+
         {{else}}
-        <br>
         {{/if}}
         {{/each}}
 
@@ -26,7 +26,8 @@
 
         <div class='ability flexrow flex-group-center'>
           <label class='resource-label flexlarge align-left'>
-            {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.stressBonus.label'}}
+            {{localize
+            'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.stressBonus.label'}}
           </label>
           <span class='ability-mod'>{{numberFormat system.stressBonus decimals=0
             sign=true}}</span>
@@ -35,10 +36,13 @@
     </aside>
 
     <section class='main grid-span-2'>
-      {{! Editors must receive enriched text data from getData to properly handle rolls, UUID links, etc. }}
+      {{! Editors must receive enriched text data from getData to properly
+      handle rolls, UUID links, etc. }}
       {{#if editable}}
-      <prose-mirror name="system.transformationTabDescription" data-document-uuid="{{actor.uuid}}"
-        value="{{system.transformationTabDescription}}" collaborate="true" toggled="true">
+      <prose-mirror name="system.transformationTabDescription"
+        data-document-uuid="{{actor.uuid}}"
+        value="{{system.transformationTabDescription}}" collaborate="true"
+        toggled="true">
         {{{enrichedTransformationInformation}}}
       </prose-mirror>
       {{else}} {{{enrichedTransformationInformation}}}

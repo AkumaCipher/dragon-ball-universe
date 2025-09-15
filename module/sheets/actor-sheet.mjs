@@ -32,6 +32,8 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       roll: this._onRoll,
       strikeOrDodge: this._onStrikeOrDodge,
       wound: this._onWound,
+      changeCustomKnowledge: this._onChangeCustomKnowledge,
+      eraseCustomKnowledge: this._onEraseCustomKnowledge,
     },
     // Custom property that's merged into `this.options`
     // dragDrop: [{ dragSelector: '.draggable', dropSelector: null }],
@@ -51,6 +53,10 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     },
     attributes: {
       template: "systems/dragon-ball-universe/templates/actor/attributes.hbs",
+      scrollable: [""],
+    },
+    skills: {
+      template: "systems/dragon-ball-universe/templates/actor/skills.hbs",
       scrollable: [""],
     },
     transformations: {
@@ -88,6 +94,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       case "character":
         options.parts.push(
           "attributes",
+          "skills",
           "combat",
           "transformations",
           "gear",
@@ -130,6 +137,9 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   async _preparePartContext(partId, context) {
     switch (partId) {
       case "attributes":
+        context.tab = context.tabs[partId];
+        break;
+      case "skills":
         context.tab = context.tabs[partId];
         break;
       case "combat":
@@ -194,7 +204,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // If you have sub-tabs this is necessary to change
     const tabGroup = "primary";
     // Default tab for first time it's rendered this session
-    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = "combat";
+    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = "skills";
     return parts.reduce((tabs, partId) => {
       const tab = {
         cssClass: "",
@@ -217,6 +227,10 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         case "attributes":
           tab.id = "attributes";
           tab.label += "Attributes";
+          break;
+        case "skills":
+          tab.id = "skills";
+          tab.label += "Skills";
           break;
         case "gear":
           tab.id = "gear";
@@ -726,6 +740,51 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     };
 
     doCombatRoll(this.actor, roll, dataset.label, critInfo);
+  }
+
+  static async _onChangeCustomKnowledge() {
+    var customKnowledgeInput = fields.createTextInput({
+      name: "customKnowledgeName",
+      value: "Custom Name",
+    });
+
+    var customKnowledgeGroup = fields.createFormGroup({
+      input: customKnowledgeInput,
+      label: "Custom Knowledge Name?",
+    });
+
+    var content = `<div>${customKnowledgeGroup.outerHTML}</span>`;
+
+    await foundry.applications.api.DialogV2.input({
+      window: { title: `Adding Custom Knowledge Skill!` },
+      content: content,
+      position: {
+        width: 400,
+      },
+      ok: {
+        label: "Save",
+        icon: "fa-solid fa-floppy-disk",
+      },
+      submit: (result) => {
+        try {
+          console.log(result);
+
+          this.document.update({
+            "system.knowledgeCustom.name": result.customKnowledgeName,
+          });
+        } catch (error) {
+          console.error(error);
+          return;
+        }
+      },
+    });
+  };
+
+  static async _onEraseCustomKnowledge() {
+    this.document.update({
+      "system.knowledgeCustom.name": '',
+      "system.skills.knowledgeCustom.rank": 0,
+    })
   }
 
   /** Helper Functions */

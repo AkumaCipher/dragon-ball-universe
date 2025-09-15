@@ -30,6 +30,83 @@
         "abbr": "PE"
       }
     },
+    "Skills": {
+      "acrobatics": {
+        "label": "Acrobatics"
+      },
+      "pilot": {
+        "label": "Pilot"
+      },
+      "thievery": {
+        "label": "Thievery"
+      },
+      "stealth": {
+        "label": "Stealth"
+      },
+      "craftBasicItem": {
+        "label": "Craft (Basic Item)"
+      },
+      "craftApparel": {
+        "label": "Craft (Apparel)"
+      },
+      "craftWeapons": {
+        "label": "Craft (Weapons)"
+      },
+      "craftVehicles": {
+        "label": "Craft (Vehicles)"
+      },
+      "knowledgeScience": {
+        "label": "Knowledge (Science)"
+      },
+      "knowledgeProfession": {
+        "label": "Knowledge (Profession)"
+      },
+      "knowledgeHistory": {
+        "label": "Knowledge (History)"
+      },
+      "knowledgeCustom": {
+        "label": "Knowledge"
+      },
+      "investigation": {
+        "label": "Investigation"
+      },
+      "medicine": {
+        "label": "Medicine"
+      },
+      "clairvoyance": {
+        "label": "Clairvoyance"
+      },
+      "concealment": {
+        "label": "Concealment"
+      },
+      "creatureHandling": {
+        "label": "Creature Handling"
+      },
+      "perception": {
+        "label": "Perception"
+      },
+      "intuition": {
+        "label": "Intuition"
+      },
+      "survival": {
+        "label": "Survival"
+      },
+      "useMagic": {
+        "label": "Use Magic"
+      },
+      "bluff": {
+        "label": "Bluff"
+      },
+      "intimidation": {
+        "label": "Intimidation"
+      },
+      "persuasion": {
+        "label": "Persuasion"
+      },
+      "performance": {
+        "label": "Performance"
+      }
+    },
     "SavingThrow": {
       "Corporeal": "Corporeal",
       "Cognitive": "Cognitive",
@@ -44,6 +121,7 @@
       "Tabs": {
         "Biography": "Biography",
         "Attributes": "Attributes",
+        "Skills": "Skills",
         "Gear": "Gear",
         "Combat": "Combat",
         "Transformations": "Transformations",
