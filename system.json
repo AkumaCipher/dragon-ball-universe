@@ -10,20 +10,23 @@
   ],
   "documentTypes": {
     "Actor": {
-        "character": {
-            "htmlFields": ["biography","transformationTabDescription"]
-        }
+      "character": {
+        "htmlFields": ["information", "transformationTabDescription"]
+      }
     },
     "Item": {
-        "feature": {
-            "htmlFields": ["description"]
-        },
-        "gear": {
-            "htmlFields": ["description"]
-        },
-        "spell": {
-            "htmlFields": ["description"]
-        }
+      "feature": {
+        "htmlFields": ["description"]
+      },
+      "gear": {
+        "htmlFields": ["description"]
+      },
+      "spell": {
+        "htmlFields": ["description"]
+      },
+      "race": {
+        "htmlFields": ["description"]
+      }
     }
   },
   "flags": {

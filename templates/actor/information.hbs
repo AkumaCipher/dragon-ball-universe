@@ -1,0 +1,66 @@
+{{! Information Tab }}
+<section
+  class='tab information scrollable {{tab.cssClass}}'
+  data-group='primary'
+  data-tab='information'>
+  {{! Editors must receive enriched text data from getData to properly handle
+  rolls, UUID links, etc. }}
+  <h3 class="header">
+    Race Information
+  </h3>
+
+  <div class="grid grid-3col">
+    
+    <div class="flex-group-center">
+      <label for='system.raceName' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.raceName.label'}}?
+      </label>
+
+      <input type="text" class="align-center" name="system.raceName"
+        value="{{system.raceName}}">
+    </div>
+
+    <div class="flex-group-center">
+      <label for='system.subraceName' class='resource-label'>
+        {{localize 'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.subraceName.label'}}?
+      </label>
+
+      <input type="text" class="align-center" name="system.subraceName"
+        value="{{system.subraceName}}">
+    </div>
+
+    <div class="flex-group-center">
+      <label for='system.savingThrowProficiency' class='resource-label'>
+        {{localize
+        'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.savingThrowProficiency.label'}}
+      </label>
+
+      <select name="system.savingThrowProficiency" class="align-center">
+        {{selectOptions config.savingThrows
+        selected=system.savingThrowProficiency localize=true}}
+      </select>
+    </div>
+
+    <div class="flex-group-center">
+      <label class='resource-label' for="system.racialLifeModifier">
+        {{localize
+        'DRAGON_BALL_UNIVERSE.Actor.base.FIELDS.racialLifeModifier.label'}}
+      </label>
+
+      <input type="text" data-dtype='Number' class="align-center" name="system.racialLifeModifier"
+        value="{{system.racialLifeModifier}}">
+    </div>
+  </div>
+
+  <h3 class="header">
+    Z-Soul, Background, etc.
+  </h3>
+
+  {{#if editable}}
+  <prose-mirror name="system.information" data-document-uuid="{{actor.uuid}}"
+    value="{{system.information}}" collaborate="true" toggled="true">
+    {{{enrichedInformation}}}
+  </prose-mirror>
+  {{else}} {{{enrichedInformation}}}
+  {{/if}}
+</section>

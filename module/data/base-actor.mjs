@@ -35,7 +35,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       max: new fields.NumberField({ ...requiredInteger, initial: 20 }),
     });
 
-    schema.biography = new fields.HTMLField();
+    schema.information = new fields.HTMLField();
 
     schema.transformationTabDescription = new fields.HTMLField();
 
@@ -95,6 +95,24 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       name: new fields.StringField({
         initial: "",
       }),
+    });
+
+    schema.savingThrowProficiency = new fields.StringField({
+      initial: "corporeal",
+      choices: ["corporeal", "impulsive", "morale", "cognitive"],
+    });
+
+    schema.raceName = new fields.StringField({
+      initial: "",
+    });
+
+    schema.subraceName = new fields.StringField({
+      initial: "",
+    });
+
+    schema.racialLifeModifier = new fields.NumberField({
+      ...requiredInteger,
+      initial: 0,
     });
 
     return schema;
@@ -292,8 +310,13 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
     // Each level after the first adds 12 Life Points.
     const levelLifeModifier = 12 * (level - 1);
 
+    // Each level adds the Racial Life Modifier
+
+    const racialLifeModifier = systemData.racialLifeModifier * level;
+
     // Set the actor's max health to the base 60 + modifiers.
-    systemData.health.max = 60 + tenacityLifeModifier + levelLifeModifier;
+    systemData.health.max =
+      60 + tenacityLifeModifier + levelLifeModifier + racialLifeModifier;
 
     /* Calculate Ki Points */
 
@@ -409,10 +432,26 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     // Saving Throws
     systemData.savingThrows = {
-      corporeal: abilities.te.value,
-      cognitive: abilities.in.value,
-      morale: abilities.pe.value,
-      impulsive: abilities.ag.value,
+      corporeal:
+        abilities.te.value +
+        (systemData.savingThrowProficiency == "corporeal"
+          ? systemData.currentTierOfPower
+          : 0),
+      cognitive:
+        abilities.in.value +
+        (systemData.savingThrowProficiency == "cognitive"
+          ? systemData.currentTierOfPower
+          : 0),
+      morale:
+        abilities.pe.value +
+        (systemData.savingThrowProficiency == "morale"
+          ? systemData.currentTierOfPower
+          : 0),
+      impulsive:
+        abilities.ag.value +
+        (systemData.savingThrowProficiency == "impulsive"
+          ? systemData.currentTierOfPower
+          : 0),
     };
   }
 
@@ -633,6 +672,10 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       systemData.skills.knowledgeScience.rank / 2
     );
 
+    knowledgeSkillBonus += Math.floor(
+      systemData.skills.knowledgeCustom.rank / 2
+    );
+
     Object.keys(systemData.skills).forEach((skill) => {
       systemData.skills[skill].label =
         game.i18n.localize(CONFIG.DRAGON_BALL_UNIVERSE.skills[skill].label) ??
@@ -652,7 +695,7 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
       systemData.skills[skill].value += knowledgeSkillBonus;
     });
 
-    systemData.skills.knowledgeCustom.label += ` (${systemData.knowledgeCustom.name})`; 
+    systemData.skills.knowledgeCustom.label += ` (${systemData.knowledgeCustom.name})`;
 
     // console.log(systemData.skills);
   }

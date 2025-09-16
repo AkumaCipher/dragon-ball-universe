@@ -2,13 +2,13 @@
 <section class='tab skills scrollable {{tab.cssClass}}' data-group='primary'
   data-tab='skills'>
 
-  <div class='abilities flexcol grid grid-2col'>
+  <section class="grid grid-2col">
     {{#each system.skills as |skill key|}}
 
     {{#if (eq key 'knowledgeCustom')}}
     {{else}}
 
-    <div class='ability flexrow flex-group-center'>
+    <div class='flexrow flex-group-center'>
       <label class='resource-label flexlarge align-left'
         data-action='roll'>{{skill.label}}</label>
 
@@ -59,6 +59,7 @@
         data-label='{{system.skills.knowledgeCustom.label}} Check'>{{numberFormat
         system.skills.knowledgeCustom.value decimals=0
         sign=true}}</span>
-    </div>
+    </section>
+
     {{/if}}
   </section>

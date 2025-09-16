@@ -7,3 +7,4 @@ export { default as DragonBallUniverseItemBase } from './base-item.mjs';
 export { default as DragonBallUniverseGear } from './item-gear.mjs';
 export { default as DragonBallUniverseFeature } from './item-feature.mjs';
 export { default as DragonBallUniverseSpell } from './item-spell.mjs';
+export { default as DragonBallUniverseRace } from './item-race.mjs';

@@ -1,0 +1,68 @@
+{{! Attributes Tab }}
+<section
+    class='tab attributes {{tab.cssClass}}'
+    data-group='primary'
+    data-tab='attributes'>
+    {{! As you add new fields, add them in here! }}
+    <div class='resource grid grid-3col'>
+
+        <div class="flexcol flexcenter">
+            <label class="align-center">
+                +2
+            </label>
+
+            <input type="text" class="align-center"
+                name="system.attributeIncreases.firstAttribute"
+                value="{{system.attributeIncreases.firstAttribute}}">
+        </div>
+
+        <div class="flexcol flexcenter">
+            <label class="align-center">
+                +2
+            </label>
+
+            <input type="text" class="align-center"
+                name="system.attributeIncreases.secondAttribute"
+                value="{{system.attributeIncreases.secondAttribute}}">
+        </div>
+
+        <div class="flexcol flexcenter">
+            <label class="align-center">
+                +1
+            </label>
+
+            <input type="text" class="align-center"
+                name="system.attributeIncreases.thirdAttribute"
+                value="{{system.attributeIncreases.thirdAttribute}}">
+        </div>
+
+    </div>
+
+    <hr>
+
+    <div class='resource grid grid-2col'>
+
+        <div class="flexcol flexcenter">
+            <label class="align-center">
+                {{localize
+                'DRAGON_BALL_UNIVERSE.Item.Race.FIELDS.savingThrowProficiency.label'}}
+            </label>
+
+            <input type="text" class="align-center"
+                name="system.savingThrowProficiency"
+                value="{{system.savingThrowProficiency}}">
+        </div>
+
+        <div class="flexcol flexcenter">
+            <label class="align-center">
+                {{localize
+                'DRAGON_BALL_UNIVERSE.Item.Race.FIELDS.racialLifeModifier.label'}}
+            </label>
+
+            <input type="text" data-dtype='Number' class="align-center"
+                name="system.racialLifeModifier"
+                value="{{system.racialLifeModifier}}">
+        </div>
+
+    </div>
+</section>

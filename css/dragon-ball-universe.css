@@ -260,12 +260,12 @@
   height: 100%;
 }
 .dragon-ball-universe .tab {
-  max-height: 480px;
+  max-height: 422px;
 }
-.dragon-ball-universe .tab.biography {
+.dragon-ball-universe .tab.information {
   flex: 1;
 }
-.dragon-ball-universe .tab.biography .editor {
+.dragon-ball-universe .tab.information .editor {
   height: 100%;
 }
 

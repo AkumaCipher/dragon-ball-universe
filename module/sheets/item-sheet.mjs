@@ -1,6 +1,6 @@
-import { prepareActiveEffectCategories } from '../helpers/effects.mjs';
+import { prepareActiveEffectCategories } from "../helpers/effects.mjs";
 
-const { api, sheets } = foundry.applications;
+const { api, sheets, ux, apps } = foundry.applications;
 const DragDrop = foundry.applications.ux.DragDrop;
 
 /**
@@ -16,7 +16,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
 
   /** @override */
   static DEFAULT_OPTIONS = {
-    classes: ['dragon-ball-universe', 'item'],
+    classes: ["dragon-ball-universe", "item"],
     actions: {
       onEditImage: this._onEditImage,
       viewDoc: this._viewEffect,
@@ -28,7 +28,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
       submitOnChange: true,
     },
     // Custom property that's merged into `this.options`
-    dragDrop: [{ dragSelector: '.draggable', dropSelector: null }],
+    dragDrop: [{ dragSelector: ".draggable", dropSelector: null }],
   };
 
   /* -------------------------------------------- */
@@ -36,27 +36,33 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
   /** @override */
   static PARTS = {
     header: {
-      template: 'systems/dragon-ball-universe/templates/item/header.hbs',
+      template: "systems/dragon-ball-universe/templates/item/header.hbs",
     },
     tabs: {
       // Foundry-provided generic template
-      template: 'templates/generic/tab-navigation.hbs',
+      template: "templates/generic/tab-navigation.hbs",
     },
     description: {
-      template: 'systems/dragon-ball-universe/templates/item/description.hbs',
+      template: "systems/dragon-ball-universe/templates/item/description.hbs",
     },
     attributesFeature: {
       template:
-        'systems/dragon-ball-universe/templates/item/attribute-parts/feature.hbs',
+        "systems/dragon-ball-universe/templates/item/attribute-parts/feature.hbs",
     },
     attributesGear: {
-      template: 'systems/dragon-ball-universe/templates/item/attribute-parts/gear.hbs',
+      template:
+        "systems/dragon-ball-universe/templates/item/attribute-parts/gear.hbs",
     },
     attributesSpell: {
-      template: 'systems/dragon-ball-universe/templates/item/attribute-parts/spell.hbs',
+      template:
+        "systems/dragon-ball-universe/templates/item/attribute-parts/spell.hbs",
+    },
+    attributesRace: {
+      template:
+        "systems/dragon-ball-universe/templates/item/attribute-parts/race.hbs",
     },
     effects: {
-      template: 'systems/dragon-ball-universe/templates/item/effects.hbs',
+      template: "systems/dragon-ball-universe/templates/item/effects.hbs",
     },
   };
 
@@ -64,19 +70,22 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
   _configureRenderOptions(options) {
     super._configureRenderOptions(options);
     // Not all parts always render
-    options.parts = ['header', 'tabs', 'description'];
+    options.parts = ["header", "tabs", "description"];
     // Don't show the other tabs if only limited view
     if (this.document.limited) return;
     // Control which parts show based on document subtype
     switch (this.document.type) {
-      case 'feature':
-        options.parts.push('attributesFeature', 'effects');
+      case "feature":
+        options.parts.push("attributesFeature", "effects");
         break;
-      case 'gear':
-        options.parts.push('attributesGear');
+      case "gear":
+        options.parts.push("attributesGear");
         break;
-      case 'spell':
-        options.parts.push('attributesSpell');
+      case "spell":
+        options.parts.push("attributesSpell");
+        break;
+      case "race":
+        options.parts.push("attributesRace");
         break;
     }
   }
@@ -110,17 +119,18 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
   /** @override */
   async _preparePartContext(partId, context) {
     switch (partId) {
-      case 'attributesFeature':
-      case 'attributesGear':
-      case 'attributesSpell':
+      case "attributesFeature":
+      case "attributesGear":
+      case "attributesRace":
+      case "attributesSpell":
         // Necessary for preserving active tab on re-render
         context.tab = context.tabs[partId];
         break;
-      case 'description':
+      case "description":
         context.tab = context.tabs[partId];
         // Enrich description info for display
         // Enrichment turns text like `[[/r 1d10]]` into buttons
-        context.enrichedDescription = await TextEditor.enrichHTML(
+        context.enrichedDescription = await ux.TextEditor.enrichHTML(
           this.item.system.description,
           {
             // Whether to show secret blocks in the finished html
@@ -132,7 +142,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
           }
         );
         break;
-      case 'effects':
+      case "effects":
         context.tab = context.tabs[partId];
         // Prepare active effects for easier access
         context.effects = prepareActiveEffectCategories(this.item.effects);
@@ -149,40 +159,41 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
    */
   _getTabs(parts) {
     // If you have sub-tabs this is necessary to change
-    const tabGroup = 'primary';
+    const tabGroup = "primary";
     // Default tab for first time it's rendered this session
-    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = 'description';
+    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = "description";
     return parts.reduce((tabs, partId) => {
       const tab = {
-        cssClass: '',
+        cssClass: "",
         group: tabGroup,
         // Matches tab property to
-        id: '',
+        id: "",
         // FontAwesome Icon, if you so choose
-        icon: '',
+        icon: "",
         // Run through localization
-        label: 'DRAGON_BALL_UNIVERSE.Item.Tabs.',
+        label: "DRAGON_BALL_UNIVERSE.Item.Tabs.",
       };
       switch (partId) {
-        case 'header':
-        case 'tabs':
+        case "header":
+        case "tabs":
           return tabs;
-        case 'description':
-          tab.id = 'description';
-          tab.label += 'Description';
+        case "description":
+          tab.id = "description";
+          tab.label += "Description";
           break;
-        case 'attributesFeature':
-        case 'attributesGear':
-        case 'attributesSpell':
-          tab.id = 'attributes';
-          tab.label += 'Attributes';
+        case "attributesFeature":
+        case "attributesGear":
+        case "attributesRace":
+        case "attributesSpell":
+          tab.id = "attributes";
+          tab.label += "Attributes";
           break;
-        case 'effects':
-          tab.id = 'effects';
-          tab.label += 'Effects';
+        case "effects":
+          tab.id = "effects";
+          tab.label += "Effects";
           break;
       }
-      if (this.tabGroups[tabGroup] === tab.id) tab.cssClass = 'active';
+      if (this.tabGroups[tabGroup] === tab.id) tab.cssClass = "active";
       tabs[partId] = tab;
       return tabs;
     }, {});
@@ -202,13 +213,13 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
       dropSelector: null,
       permissions: {
         dragstart: this._canDragStart.bind(this),
-        drop: this._canDragDrop.bind(this)
+        drop: this._canDragDrop.bind(this),
       },
       callbacks: {
         dragstart: this._onDragStart.bind(this),
         dragover: this._onDragOver.bind(this),
-        drop: this._onDrop.bind(this)
-      }
+        drop: this._onDrop.bind(this),
+      },
     }).bind(this.element);
     // You may want to add other special handling here
     // Foundry comes with a large number of utility classes, e.g. SearchFilter
@@ -236,9 +247,9 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
     const { img } =
       this.document.constructor.getDefaultArtwork?.(this.document.toObject()) ??
       {};
-    const fp = new FilePicker({
+    const fp = new apps.FilePicker({
       current,
-      type: 'image',
+      type: "image",
       redirectToRoot: img ? [img] : [],
       callback: (path) => {
         this.document.update({ [attr]: path });
@@ -285,7 +296,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
    */
   static async _createEffect(event, target) {
     // Retrieve the configured document class for ActiveEffect
-    const aeCls = getDocumentClass('ActiveEffect');
+    const aeCls = getDocumentClass("ActiveEffect");
     // Prepare the document creation data by initializing it a default name.
     // As of v12, you can define custom Active Effect subtypes just like Item subtypes if you want
     const effectData = {
@@ -298,7 +309,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
     // Loop through the dataset and add it to our effectData
     for (const [dataKey, value] of Object.entries(target.dataset)) {
       // These data attributes are reserved for the action handling
-      if (['action', 'documentClass'].includes(dataKey)) continue;
+      if (["action", "documentClass"].includes(dataKey)) continue;
       // Nested properties require dot notation in the HTML, e.g. anything with `system`
       // An example exists in spells.hbs, with `data-system.spell-level`
       // which turns into the dataKey 'system.spellLevel'
@@ -331,7 +342,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
    * @returns {HTMLLIElement} The document's row
    */
   _getEffect(target) {
-    const li = target.closest('.effect');
+    const li = target.closest(".effect");
     return this.item.effects.get(li?.dataset?.effectId);
   }
 
@@ -370,7 +381,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
    */
   _onDragStart(event) {
     const li = event.currentTarget;
-    if ('link' in event.target.dataset) return;
+    if ("link" in event.target.dataset) return;
 
     let dragData = null;
 
@@ -383,7 +394,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
     if (!dragData) return;
 
     // Set data transfer
-    event.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+    event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
   }
 
   /**
@@ -391,7 +402,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
    * @param {DragEvent} event       The originating DragEvent
    * @protected
    */
-  _onDragOver(event) { }
+  _onDragOver(event) {}
 
   /**
    * Callback actions which occur when a dragged element is dropped on a target.
@@ -399,12 +410,12 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
    * @protected
    */
   async _onDrop(event) {
-    const data = TextEditor.getDragEventData(event);
+    const data = ux.TextEditor.getDragEventData(event);
     const item = this.item;
-    const allowed = Hooks.call('dropItemSheetData', item, this, data);
+    const allowed = Hooks.call("dropItemSheetData", item, this, data);
     if (allowed === false) return;
 
-    // Although you will find implmentations to all doc types here, it is important to keep 
+    // Although you will find implmentations to all doc types here, it is important to keep
     // in mind that only Active Effects are "valid" for items.
     // Actors have items, but items do not have actors.
     // Items in items is not implemented on Foudry per default. If you need an implementation with that,
@@ -414,13 +425,13 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
     // We left them here so you can have an idea of how that would work, if you want to do some kind of
     // implementation for that.
     switch (data.type) {
-      case 'ActiveEffect':
+      case "ActiveEffect":
         return this._onDropActiveEffect(event, data);
-      case 'Actor':
+      case "Actor":
         return this._onDropActor(event, data);
-      case 'Item':
+      case "Item":
         return this._onDropItem(event, data);
-      case 'Folder':
+      case "Folder":
         return this._onDropFolder(event, data);
     }
   }
@@ -435,7 +446,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
    * @protected
    */
   async _onDropActiveEffect(event, data) {
-    const aeCls = getDocumentClass('ActiveEffect');
+    const aeCls = getDocumentClass("ActiveEffect");
     const effect = await aeCls.fromDropData(data);
     if (!this.item.isOwner || !effect) return false;
 
@@ -452,7 +463,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
    */
   _onEffectSort(event, effect) {
     const effects = this.item.effects;
-    const dropTarget = event.target.closest('[data-effect-id]');
+    const dropTarget = event.target.closest("[data-effect-id]");
     if (!dropTarget) return;
     const target = effects.get(dropTarget.dataset.effectId);
 
@@ -479,7 +490,7 @@ export class DragonBallUniverseItemSheet extends api.HandlebarsApplicationMixin(
     });
 
     // Perform the update
-    return this.item.updateEmbeddedDocuments('ActiveEffect', updateData);
+    return this.item.updateEmbeddedDocuments("ActiveEffect", updateData);
   }
 
   /* -------------------------------------------- */

@@ -7,7 +7,7 @@ import {
   valueParser,
 } from "../helpers/utils.mjs";
 
-const { api, sheets, fields, ux } = foundry.applications;
+const { api, sheets, fields, ux, apps } = foundry.applications;
 
 /**
  * Extend the basic ActorSheet with some very simple modifications
@@ -36,7 +36,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       eraseCustomKnowledge: this._onEraseCustomKnowledge,
     },
     // Custom property that's merged into `this.options`
-    // dragDrop: [{ dragSelector: '.draggable', dropSelector: null }],
+    dragDrop: [{ dragSelector: ".draggable", dropSelector: null }],
     form: {
       submitOnChange: true,
     },
@@ -64,8 +64,8 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         "systems/dragon-ball-universe/templates/actor/transformations.hbs",
       scrollable: [""],
     },
-    biography: {
-      template: "systems/dragon-ball-universe/templates/actor/biography.hbs",
+    information: {
+      template: "systems/dragon-ball-universe/templates/actor/information.hbs",
       scrollable: [""],
     },
     gear: {
@@ -86,7 +86,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   _configureRenderOptions(options) {
     super._configureRenderOptions(options);
     // Not all parts always render
-    options.parts = ["header", "tabs", "biography"];
+    options.parts = ["header", "tabs", "information"];
     // Don't show the other tabs if only limited view
     if (this.document.limited) return;
     // Control which parts show based on document subtype
@@ -112,6 +112,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     const context = {
       // Validates both permissions and compendium status
       editable: this.isEditable,
+      document: this.document,
       owner: this.document.isOwner,
       limited: this.document.limited,
       // Add the actor document.
@@ -147,8 +148,6 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         break;
       case "transformations":
         context.tab = context.tabs[partId];
-        // Enrich biography info for display
-        // Enrichment turns text like `[[/r 1d10]]` into buttons
         context.enrichedTransformationInformation =
           await ux.TextEditor.enrichHTML(
             this.actor.system.transformationTabDescription,
@@ -165,12 +164,12 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       case "gear":
         context.tab = context.tabs[partId];
         break;
-      case "biography":
+      case "information":
         context.tab = context.tabs[partId];
-        // Enrich biography info for display
+        // Enrich information info for display
         // Enrichment turns text like `[[/r 1d10]]` into buttons
-        context.enrichedBiography = await ux.TextEditor.enrichHTML(
-          this.actor.system.biography,
+        context.enrichedInformation = await ux.TextEditor.enrichHTML(
+          this.actor.system.information,
           {
             // Whether to show secret blocks in the finished html
             secrets: this.document.isOwner,
@@ -204,7 +203,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     // If you have sub-tabs this is necessary to change
     const tabGroup = "primary";
     // Default tab for first time it's rendered this session
-    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = "skills";
+    if (!this.tabGroups[tabGroup]) this.tabGroups[tabGroup] = "information";
     return parts.reduce((tabs, partId) => {
       const tab = {
         cssClass: "",
@@ -220,9 +219,9 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         case "header":
         case "tabs":
           return tabs;
-        case "biography":
-          tab.id = "biography";
-          tab.label += "Biography";
+        case "information":
+          tab.id = "information";
+          tab.label += "Information";
           break;
         case "attributes":
           tab.id = "attributes";
@@ -319,6 +318,20 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   async _onRender(context, options) {
     await super._onRender(context, options);
 
+    new ux.DragDrop.implementation({
+      dragSelector: ".draggable",
+      dropSelector: null,
+      permissions: {
+        dragstart: this._canDragStart.bind(this),
+        drop: this._canDragDrop.bind(this),
+      },
+      callbacks: {
+        dragstart: this._onDragStart.bind(this),
+        dragover: this._onDragOver.bind(this),
+        drop: this._onDrop.bind(this),
+      },
+    }).bind(this.element);
+
     this.#disableOverrides();
     // You may want to add other special handling here
     // Foundry comes with a large number of utility classes, e.g. SearchFilter
@@ -364,7 +377,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     const { img } =
       this.document.constructor.getDefaultArtwork?.(this.document.toObject()) ??
       {};
-    const fp = new FilePicker({
+    const fp = new apps.FilePicker({
       current,
       type: "image",
       redirectToRoot: img ? [img] : [],
@@ -522,7 +535,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
 
       let data;
 
-      data = await foundry.applications.api.DialogV2.input({
+      data = await api.DialogV2.input({
         window: { title: `${combatRollLabel} Roll Customisation!` },
         content: content,
         position: {
@@ -646,7 +659,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
 
       let data;
 
-      data = await foundry.applications.api.DialogV2.input({
+      data = await api.DialogV2.input({
         window: { title: `Wound Roll Customisation!` },
         content: content,
         position: {
@@ -755,7 +768,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
 
     var content = `<div>${customKnowledgeGroup.outerHTML}</span>`;
 
-    await foundry.applications.api.DialogV2.input({
+    await api.DialogV2.input({
       window: { title: `Adding Custom Knowledge Skill!` },
       content: content,
       position: {
@@ -767,8 +780,6 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       },
       submit: (result) => {
         try {
-          console.log(result);
-
           this.document.update({
             "system.knowledgeCustom.name": result.customKnowledgeName,
           });
@@ -778,13 +789,13 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
         }
       },
     });
-  };
+  }
 
   static async _onEraseCustomKnowledge() {
     this.document.update({
-      "system.knowledgeCustom.name": '',
+      "system.knowledgeCustom.name": "",
       "system.skills.knowledgeCustom.rank": 0,
-    })
+    });
   }
 
   /** Helper Functions */
@@ -813,6 +824,90 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
    * Drag and Drop
    *
    ***************/
+
+  /**
+   * Define whether a user is able to begin a dragstart workflow for a given drag selector
+   * @param {string} selector       The candidate HTML selector for dragging
+   * @returns {boolean}             Can the current user drag this selector?
+   * @protected
+   */
+  _canDragStart(selector) {
+    // game.user fetches the current user
+    return this.isEditable;
+  }
+
+  /**
+   * Define whether a user is able to conclude a drag-and-drop workflow for a given drop selector
+   * @param {string} selector       The candidate HTML selector for the drop target
+   * @returns {boolean}             Can the current user drop on this selector?
+   * @protected
+   */
+  _canDragDrop(selector) {
+    // game.user fetches the current user
+    return this.isEditable;
+  }
+
+  /**
+   * Callback actions which occur at the beginning of a drag start workflow.
+   * @param {DragEvent} event       The originating DragEvent
+   * @protected
+   */
+  _onDragStart(event) {
+    const li = event.currentTarget;
+    if ("link" in event.target.dataset) return;
+
+    let dragData = null;
+
+    // Active Effect
+    if (li.dataset.effectId) {
+      const effect = this.item.effects.get(li.dataset.effectId);
+      dragData = effect.toDragData();
+    }
+
+    if (!dragData) return;
+
+    // Set data transfer
+    event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+  }
+
+  /**
+   * Callback actions which occur when a dragged element is over a drop target.
+   * @param {DragEvent} event       The originating DragEvent
+   * @protected
+   */
+  _onDragOver(event) {}
+
+  /**
+   * Callback actions which occur when a dragged element is dropped on a target.
+   * @param {DragEvent} event       The originating DragEvent
+   * @protected
+   */
+  async _onDrop(event) {
+    const data = ux.TextEditor.getDragEventData(event);
+    const item = this.item;
+    const allowed = Hooks.call("dropItemSheetData", item, this, data);
+    if (allowed === false) return;
+
+    // Although you will find implmentations to all doc types here, it is important to keep
+    // in mind that only Active Effects are "valid" for items.
+    // Actors have items, but items do not have actors.
+    // Items in items is not implemented on Foudry per default. If you need an implementation with that,
+    // try to search how other systems do. Basically they will use the drag and drop, but they will store
+    // the UUID of the item.
+    // Folders can only contain Actors or Items. So, fall on the cases above.
+    // We left them here so you can have an idea of how that would work, if you want to do some kind of
+    // implementation for that.
+    switch (data.type) {
+      case "ActiveEffect":
+        return this._onDropActiveEffect(event, data);
+      case "Actor":
+        return this._onDropActor(event, data);
+      case "Item":
+        return this._onDropItem(event, data);
+      case "Folder":
+        return this._onDropFolder(event, data);
+    }
+  }
 
   /**
    * Handle the dropping of ActiveEffect data onto an Actor Sheet
@@ -900,6 +995,169 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
    */
   async _onDropActor(event, data) {
     if (!this.actor.isOwner) return false;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * Handle dropping of an item reference or item data onto an Actor Sheet
+   * @param {DragEvent} event            The concluding DragEvent which contains drop data
+   * @param {object} data                The data transfer extracted from the event
+   * @returns {Promise<Item[]|boolean>}  The created or updated Item instances, or false if the drop was not permitted.
+   * @protected
+   */
+  async _onDropItem(event, data) {
+    if (!this.isEditable) return false;
+
+    const item = await fromUuid(data.uuid);
+
+    const itemType = item.type;
+
+    switch (itemType) {
+      case "race":
+        return this._onDropRace(item);
+    }
+
+    return;
+  }
+
+  /* -------------------------------------------- */
+
+  /**
+   * This enables me to automatically update the attribute scores as they should happen.
+   * @param {Item} race The dropped race's data
+   */
+  async _onDropRace(race) {
+    const raceData = race.system;
+
+    const actorData = this.actor.system;
+
+    // First step, the things that don't have a choice, so racial life modifier and saving throw proficiency change.
+    this.document.update({
+      "system.savingThrowProficiency": raceData.savingThrowProficiency,
+      "system.racialLifeModifier": raceData.racialLifeModifier,
+      "system.raceName": race.name,
+    });
+
+    // Second step, the attributes.
+    var attributeIncreases = {
+      firstAttribute: {
+        value: raceData.attributeIncreases.firstAttribute,
+        bonus: 2,
+      },
+      secondAttribute: {
+        value: raceData.attributeIncreases.secondAttribute,
+        bonus: 2,
+      },
+      thirdAttribute: {
+        value: raceData.attributeIncreases.thirdAttribute,
+        bonus: 1,
+      },
+    };
+
+    var content = `<h2 style='text-align:center;'>Attribute Score Increases</h2>`;
+
+    var attributeChoices = {};
+
+    Object.keys(attributeIncreases).forEach(async (attributeIncrease) => {
+      var attributeChosen = attributeIncreases[attributeIncrease].value;
+
+      var attributeBonus = attributeIncreases[attributeIncrease].bonus;
+
+      var attributeBonusLabel =
+        attributeBonus == 2
+          ? game.i18n.localize(
+              "DRAGON_BALL_UNIVERSE.Item.Race.FIELDS.attributeIncreases.primaryAttribute.label"
+            )
+          : game.i18n.localize(
+              "DRAGON_BALL_UNIVERSE.Item.Race.FIELDS.attributeIncreases.secondaryAttribute.label"
+            );
+
+      var attributeOptions = [];
+
+      if (attributeChosen.includes(";")) {
+        var attributesChosen = attributeChosen.split(";");
+
+        attributeOptions = [];
+
+        for (let attribute of attributesChosen) {
+          var attributeLabel = game.i18n.localize(
+            CONFIG.DRAGON_BALL_UNIVERSE.abilities[attribute]
+          );
+
+          attributeOptions.push({
+            label: attributeLabel,
+            value: attribute,
+          });
+        }
+
+        var selectInput = fields.createSelectInput({
+          options: attributeOptions,
+          name: attributeIncrease,
+        });
+
+        var selectGroup = fields.createFormGroup({
+          input: selectInput,
+          label: attributeBonusLabel,
+        });
+
+        content += `<div>${selectGroup.outerHTML}</div>`;
+      } else {
+        const textInput = fields.createTextInput({
+          name: attributeIncrease,
+          value: game.i18n.localize(
+            CONFIG.DRAGON_BALL_UNIVERSE.abilities[attributeChosen]
+          ),
+          readonly: true,
+        });
+
+        const textGroup = fields.createFormGroup({
+          input: textInput,
+          label: attributeBonusLabel,
+        });
+
+        content += `<div>${textGroup.outerHTML}</div>`;
+
+        attributeChoices[attributeIncrease] = attributeChosen;
+      }
+    });
+
+    var data = await api.DialogV2.input({
+      window: { title: `Attribute Score Increases!` },
+      content: content,
+      ok: {
+        label: "Confirm?",
+      },
+      submit: (result) => {
+        try {
+          attributeChoices.secondAttribute = result.secondAttribute;
+
+          attributeChoices.thirdAttribute = result.thirdAttribute;
+
+          var firstAttributePath = `system.abilities.${attributeChoices.firstAttribute}.value`;
+
+          var secondAttributePath = `system.abilities.${attributeChoices.secondAttribute}.value`;
+
+          var thirdAttributePath = `system.abilities.${attributeChoices.thirdAttribute}.value`;
+
+          this.document.update({
+            [firstAttributePath]:
+              actorData.abilities[attributeChoices.firstAttribute].value + 2,
+            [secondAttributePath]:
+              actorData.abilities[attributeChoices.secondAttribute].value + 2,
+            [thirdAttributePath]:
+              actorData.abilities[attributeChoices.thirdAttribute].value + 1,
+          });
+        } catch (error) {
+          console.error(error);
+          return;
+        }
+      },
+    });
+
+    ui.notifications.success(`${this.actor.name} is now a ${race.name}.`, {
+      console: false,
+    });
   }
 
   /* -------------------------------------------- */

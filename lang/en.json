@@ -119,7 +119,7 @@
     },
     "Actor": {
       "Tabs": {
-        "Biography": "Biography",
+        "Information": "Information",
         "Attributes": "Attributes",
         "Skills": "Skills",
         "Gear": "Gear",
@@ -129,11 +129,23 @@
       },
       "base": {
         "FIELDS": {
-          "biography": {
-            "label": "Biography"
+          "information": {
+            "label": "Information"
           },
           "transformationTabDescription": {
             "label": "Transformation Information"
+          },
+          "savingThrowProficiency": {
+            "label": "Racial Saving Throws Bonus"
+          },
+          "racialLifeModifier": {
+            "label": "Racial Life Modifier"
+          },
+          "raceName": {
+            "label": "Race"
+          },
+          "subraceName": {
+            "label": "Subrace"
           },
           "health": {
             "value": {
@@ -311,6 +323,25 @@
           }
         }
       },
+      "Race": {
+        "FIELDS": {
+          "attributeIncreases": {
+            "label": "Attribute Increases",
+            "primaryAttribute":{
+              "label": "Attribute Score +2"
+            },
+            "secondaryAttribute":{
+              "label": "Attribute Score +1"
+            }
+          },
+          "racialLifeModifier": {
+            "label": "Racial Life Modifier"
+          },
+          "savingThrowProficiency": {
+            "label": "Racial Saving Throws Bonus"
+          }
+        }
+      },
       "Spell": {
         "FIELDS": {
           "level": {
@@ -336,7 +367,8 @@
     "Item": {
       "gear": "Gear",
       "feature": "Feature",
-      "spell": "Spell"
+      "spell": "Spell",
+      "race": "Race"
     }
   }
 }
