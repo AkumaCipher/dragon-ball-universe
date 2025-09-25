@@ -48,9 +48,10 @@
                 'DRAGON_BALL_UNIVERSE.Item.Race.FIELDS.savingThrowProficiency.label'}}
             </label>
 
-            <input type="text" class="align-center"
-                name="system.savingThrowProficiency"
-                value="{{system.savingThrowProficiency}}">
+            <select name="system.savingThrowProficiency" class="align-center">
+                {{selectOptions config.savingThrows
+                selected=system.savingThrowProficiency localize=true}}
+            </select>
         </div>
 
         <div class="flexcol flexcenter">

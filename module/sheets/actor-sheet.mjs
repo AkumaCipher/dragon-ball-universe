@@ -1024,7 +1024,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
   /* -------------------------------------------- */
 
   /**
-   * This enables me to automatically update the attribute scores as they should happen.
+   * This enables me to automatically add the racial modifiers on a character sheet.
    * @param {Item} race The dropped race's data
    */
   async _onDropRace(race) {
@@ -1075,6 +1075,8 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
 
       var attributeOptions = [];
 
+      if (attributeChosen == "all") attributeChosen = "ag;fo;te;sc;in;ma;pe";
+
       if (attributeChosen.includes(";")) {
         var attributesChosen = attributeChosen.split(";");
 
@@ -1122,18 +1124,45 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
       }
     });
 
-    var data = await api.DialogV2.input({
-      window: { title: `Attribute Score Increases!` },
-      content: content,
-      ok: {
-        label: "Confirm?",
-      },
-      submit: (result) => {
-        try {
-          attributeChoices.secondAttribute = result.secondAttribute;
+    var attributeScoreIncreaseIncorrect = true;
 
-          attributeChoices.thirdAttribute = result.thirdAttribute;
+    while (attributeScoreIncreaseIncorrect) {
+      var data = await api.DialogV2.input({
+        window: { title: `Attribute Score Increases!` },
+        content: content,
+        ok: {
+          label: "Confirm?",
+        },
+      });
 
+      if (data != null) {
+        if (data.firstAttribute.length == 2)
+          attributeChoices.firstAttribute = data.firstAttribute;
+
+        if (data.secondAttribute.length == 2)
+          attributeChoices.secondAttribute = data.secondAttribute;
+
+        if (data.thirdAttribute.length == 2)
+          attributeChoices.thirdAttribute = data.thirdAttribute;
+
+        var attributeVerification = [
+          attributeChoices.firstAttribute,
+          attributeChoices.secondAttribute,
+          attributeChoices.thirdAttribute,
+        ];
+
+        var attributeVerification = [...new Set(attributeVerification)];
+
+        var hasDuplicates = attributeVerification.length != 3;
+
+        var forceMagicVerification =
+          attributeVerification.includes("fo") &&
+          attributeVerification.includes("ma");
+
+        var attributeScoreIncreaseIncorrect =
+          forceMagicVerification || hasDuplicates ? true : false;
+
+        if (!hasDuplicates && !forceMagicVerification) {
           var firstAttributePath = `system.abilities.${attributeChoices.firstAttribute}.value`;
 
           var secondAttributePath = `system.abilities.${attributeChoices.secondAttribute}.value`;
@@ -1148,12 +1177,35 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
             [thirdAttributePath]:
               actorData.abilities[attributeChoices.thirdAttribute].value + 1,
           });
-        } catch (error) {
-          console.error(error);
-          return;
+        } else {
+          if (hasDuplicates) {
+            ui.notifications.error(
+              `You cannot select the same Attribute Score more than once.`,
+              {
+                console: false,
+              }
+            );
+          }
+
+          if (forceMagicVerification) {
+            ui.notifications.error(
+              `You cannot select Force and Magic at the same time.`,
+              {
+                console: false,
+              }
+            );
+          }
         }
-      },
-    });
+      } else {
+        var attributeScoreIncreaseIncorrect = false;
+        ui.notifications.info(
+          `You have not selected any Attribute Score to increase automatically.`,
+          {
+            console: false,
+          }
+        );
+      }
+    }
 
     ui.notifications.success(`${this.actor.name} is now a ${race.name}.`, {
       console: false,

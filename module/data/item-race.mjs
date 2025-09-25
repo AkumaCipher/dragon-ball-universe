@@ -23,7 +23,7 @@ export default class DragonBallUniverseRace extends DragonBallUniverseItemBase {
     });
 
     schema.savingThrowProficiency = new fields.StringField({
-      required: true,
+      choices: ["corporeal", "impulsive", "morale", "cognitive"],
     });
 
     schema.racialLifeModifier = new fields.NumberField({
