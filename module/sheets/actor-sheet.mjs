@@ -657,9 +657,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     if (isShift) {
       var content = await prepareCombatRollPrompt("Wound", woundType);
 
-      let data;
-
-      data = await api.DialogV2.input({
+      let data = await api.DialogV2.input({
         window: { title: `Wound Roll Customisation!` },
         content: content,
         position: {
@@ -691,6 +689,7 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
             criticalDiceCategory += result.criticalDiceCat;
 
             if (!woundType.includes("magic")) {
+              // TODO Change this due to Super Stack Changes
               superStackDiceCategory += result.superStackCat;
               superStackDiceAmount += result.superStackAgain;
             }

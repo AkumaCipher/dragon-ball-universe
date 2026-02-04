@@ -368,6 +368,8 @@ export default class DragonBallUniverseActorBase extends foundry.abstract
 
     systemData.surgency = abilities.fo.mod;
 
+    // TODO Change this due to Super Stack Rules
+
     const superStackAmount = Math.clamp(
       Math.floor((abilities.fo.value - abilities.ag.value) / 5),
       0,
