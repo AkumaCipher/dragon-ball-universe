@@ -46,11 +46,8 @@ export function createExtraDiceByCategory(
  * @param {Object} critInfo The Critical Target and Dice, which will be used for handling the critical dice
  */
 export async function doCombatRoll(actor, roll, label, critInfo) {
-  const criticalDice = critInfo.criticalDice;
 
-  const critTarget = critInfo.critTarget;
-
-  const naturalResultMod = critInfo.naturalResultMod;
+  const { criticalDice, critTarget, naturalResultMod } = critInfo;
 
   var diceRoll = new Roll(roll, actor.getRollData());
 

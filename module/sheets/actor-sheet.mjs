@@ -496,6 +496,8 @@ export class DragonBallUniverseActorSheet extends api.HandlebarsApplicationMixin
     }
   }
 
+
+  // TODO Separate Strike and Dodge to make the setup for buffs and debuffs easier later
   /**
    * This serves as the main method for rolling Strike and Dodge.
    * @param {PointerEvent} event The originating click event
